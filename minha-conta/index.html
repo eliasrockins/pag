@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acesso Seguro - PagBank Style</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         .bg-amarelo { background-color: #F5DE3E; }
@@ -20,27 +24,47 @@
     </style>
 </head>
 <body class="bg-amarelo min-h-screen relative overflow-x-hidden">
-    <div class="fixed inset-0 pointer-events-none"><div class="absolute inset-0 bg-gradient-to-b from-[#F5DE3E] via-[#FFF3A6] to-white"></div></div>
+
+    <div class="fixed inset-0 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#F5DE3E] via-[#FFF3A6] to-white"></div>
+    </div>
+
     <div class="container mx-auto px-4 relative pb-24 min-h-screen flex items-center justify-center lg:justify-end py-10">
+        
         <aside class="hidden lg:block absolute left-20 top-1/2 -translate-y-1/2 max-w-lg">
             <div class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-4 py-2 backdrop-blur mb-6">
                 <i data-lucide="shield-check" class="text-verde w-4 h-4"></i>
                 <span class="text-sm font-semibold text-black/85">Sessão protegida</span>
             </div>
-            <h1 class="text-5xl font-bold tracking-tight text-black leading-tight mb-5">Acesso com padrão de<br>empresa grande.</h1>
-            <p class="text-lg text-black/70">Identidade forte, interface limpa e operação consistente.</p>
+
+            <h1 class="text-5xl font-bold tracking-tight text-black leading-tight mb-5">
+                Acesso com padrão de<br>empresa grande.
+            </h1>
+            <p class="text-lg text-black/70">
+                Identidade forte, interface limpa e operação consistente — do login ao dashboard.
+            </p>
         </aside>
+
         <main class="w-full max-w-md relative z-10">
             <div class="glass rounded-3xl shadow-2xl overflow-hidden">
+                
                 <div class="px-8 pt-9 pb-4 text-center">
                     <h2 id="titulo-pagina" class="text-2xl font-bold text-black">Acessar sua conta</h2>
                     <div class="mt-4 h-1 w-24 bg-[#F5DE3E] mx-auto rounded-full"></div>
                 </div>
+
                 <div class="px-8 pb-9">
                     <div class="space-y-4">
-                        <div><label class="text-sm font-medium text-black/85">E-mail</label><input type="email" id="email" class="input-style"></div>
-                        <div><label class="text-sm font-medium text-black/85">Senha</label><input type="password" id="password" class="input-style"></div>
+                        <div>
+                            <label class="text-sm font-medium text-black/85">E-mail</label>
+                            <input type="email" id="email" placeholder="seu@email.com" class="input-style">
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-black/85">Senha</label>
+                            <input type="password" id="password" placeholder="Mínimo 6 caracteres" class="input-style">
+                        </div>
                     </div>
+
                     <div id="campos-extras" class="hidden space-y-4 mt-4 pt-4 border-t border-black/10 animate-in fade-in">
                         <div class="text-xs font-bold text-black/70 uppercase tracking-wide mb-2">Dados Pessoais</div>
                         <div class="grid grid-cols-2 gap-3">
@@ -51,34 +75,56 @@
                             <div><label class="text-xs font-medium">CPF</label><input type="text" id="cpf" placeholder="000.000.000-00" class="input-style"></div>
                             <div><label class="text-xs font-medium">Nascimento</label><input type="date" id="birthDate" class="input-style"></div>
                         </div>
-                        <div class="text-xs font-bold text-black/70 uppercase tracking-wide mt-4 mb-2 flex items-center gap-2"><i data-lucide="truck" class="w-3 h-3"></i> Endereço</div>
+
+                        <div class="text-xs font-bold text-black/70 uppercase tracking-wide mt-4 mb-2 flex items-center gap-2">
+                            <i data-lucide="truck" class="w-3 h-3"></i> Endereço
+                        </div>
+
                         <div class="grid grid-cols-3 gap-3">
                             <div class="col-span-1"><label class="text-xs font-medium">CEP</label><input type="text" id="cep" class="input-style"></div>
                             <div class="col-span-2"><label class="text-xs font-medium">Rua</label><input type="text" id="street" class="input-style"></div>
                         </div>
+
                         <div class="grid grid-cols-3 gap-3">
                             <div><label class="text-xs font-medium">Número</label><input type="text" id="number" class="input-style"></div>
                             <div class="col-span-2"><label class="text-xs font-medium">Bairro</label><input type="text" id="neighborhood" class="input-style"></div>
                         </div>
+
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="text-xs font-medium">Cidade</label><input type="text" id="city" class="input-style"></div>
                             <div><label class="text-xs font-medium">Estado (UF)</label><input type="text" id="state" placeholder="SP" class="input-style"></div>
                         </div>
                     </div>
-                    <button id="btn-acao" onclick="handleAuth()" class="btn-gradiente w-full mt-6 py-3 rounded-xl text-white font-bold shadow-lg">Entrar</button>
+
+                    <button id="btn-acao" onclick="handleAuth()" class="btn-gradiente w-full mt-6 py-3 rounded-xl text-white font-bold shadow-lg">
+                        Entrar
+                    </button>
+
                     <p id="mensagem" class="text-center text-sm mt-3 font-medium"></p>
+
                     <div class="text-center mt-4">
-                        <button onclick="toggleMode()" class="text-sm font-medium text-verde hover:underline"><span id="texto-toggle">Não tem uma conta? Criar agora</span></button>
+                        <button onclick="toggleMode()" class="text-sm font-medium text-verde hover:underline">
+                            <span id="texto-toggle">Não tem uma conta? Criar agora</span>
+                        </button>
                     </div>
+
                 </div>
             </div>
+            
+            <p class="mt-4 text-center text-xs text-black/50">
+                Ao continuar, você concorda com os termos e políticas.
+            </p>
         </main>
     </div>
+
     <script>
         lucide.createIcons();
+
+        // --- SUAS CREDENCIAIS ---
         const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
         const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
         let isLoginMode = true;
 
         function toggleMode() {
@@ -87,6 +133,7 @@
             const titulo = document.getElementById('titulo-pagina');
             const btn = document.getElementById('btn-acao');
             const toggleText = document.getElementById('texto-toggle');
+
             if (isLoginMode) {
                 camposExtras.classList.add('hidden');
                 titulo.innerText = "Acessar sua conta";
@@ -106,17 +153,47 @@
             const msg = document.getElementById('mensagem');
             const btn = document.getElementById('btn-acao');
 
-            if (!email || !password) { msg.innerText = "Preencha e-mail e senha."; msg.style.color = "red"; return; }
-            btn.innerText = "Processando..."; btn.disabled = true; msg.innerText = "";
+            if (!email || !password) {
+                msg.innerText = "Preencha e-mail e senha.";
+                msg.style.color = "red";
+                return;
+            }
+
+            btn.innerText = "Processando...";
+            btn.disabled = true;
+            msg.innerText = "";
 
             if (isLoginMode) {
+                // --- MODO LOGIN ---
                 const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) { msg.innerText = "Erro: " + error.message; msg.style.color = "red"; btn.innerText = "Entrar"; btn.disabled = false; }
-                else { msg.innerText = "Login Sucesso! Redirecionando..."; msg.style.color = "green"; setTimeout(() => { window.location.href = "/dashboard" }, 1500);
+                
+                if (error) {
+                    msg.innerText = "Erro: " + error.message;
+                    msg.style.color = "red";
+                    btn.innerText = "Entrar";
+                    btn.disabled = false;
+                } else {
+                    msg.innerText = "Login Sucesso! Redirecionando...";
+                    msg.style.color = "green";
+                    
+                    // --- REDIRECIONAMENTO CORRIGIDO ---
+                    setTimeout(() => { window.location.href = "/dashboard" }, 1500);
+                }
+
             } else {
+                // --- MODO CADASTRO ---
                 const { data: authData, error: authError } = await _supabase.auth.signUp({ email, password });
-                if (authError) { msg.innerText = "Erro ao criar conta: " + authError.message; msg.style.color = "red"; btn.innerText = "Criar Conta"; btn.disabled = false; return; }
+
+                if (authError) {
+                    msg.innerText = "Erro ao criar conta: " + authError.message;
+                    msg.style.color = "red";
+                    btn.innerText = "Criar Conta";
+                    btn.disabled = false;
+                    return;
+                }
+
                 if (authData.user) {
+                    // Salva dados extras na tabela 'clientes'
                     const { error: dbError } = await _supabase.from('clientes').insert({
                         id_auth: authData.user.id,
                         nome: document.getElementById('firstName').value,
@@ -130,10 +207,19 @@
                         cidade: document.getElementById('city').value,
                         estado: document.getElementById('state').value
                     });
-                    if (dbError) { msg.innerText = "Erro ao salvar dados: " + dbError.message; msg.style.color = "orange"; console.log(dbError); }
-                    else { msg.innerText = "Cadastro completo! Você já pode entrar."; msg.style.color = "green"; setTimeout(() => { toggleMode(); }, 2000); }
+
+                    if (dbError) {
+                        console.error(dbError);
+                        msg.innerText = "Conta criada, mas erro ao salvar dados: " + dbError.message;
+                        msg.style.color = "orange";
+                    } else {
+                        msg.innerText = "Cadastro completo! Você já pode entrar.";
+                        msg.style.color = "green";
+                        setTimeout(() => { toggleMode(); }, 2000);
+                    }
                 }
-                btn.innerText = "Criar Conta"; btn.disabled = false;
+                btn.innerText = "Criar Conta";
+                btn.disabled = false;
             }
         }
     </script>
