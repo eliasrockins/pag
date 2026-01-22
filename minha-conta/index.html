@@ -1,532 +1,299 @@
-import { useEffect, useMemo, useState } from "react";
-import type { ChangeEvent, CSSProperties, FormEvent } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { ShieldCheck, Truck, Lock } from "lucide-react";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Seguro - PagBank Style</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-async function ensureSessionReady(timeoutMs = 2500) {
-  const start = Date.now();
+    <style>
+        /* Configuração de Cores e Fontes parecidas com o original */
+        body { font-family: 'Inter', sans-serif; }
+        .bg-amarelo { background-color: #F5DE3E; }
+        .text-verde { color: #00a38c; }
+        .btn-gradiente { 
+            background: linear-gradient(135deg, #00a38c 0%, #008e7a 100%);
+            transition: all 0.2s;
+        }
+        .btn-gradiente:hover { background: linear-gradient(135deg, #008e7a 0%, #006e5f 100%); }
+        
+        /* Efeito de vidro (Glassmorphism) */
+        .glass {
+            background: rgba(255, 246, 208, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .input-style {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0,0,0,0.15);
+            padding: 10px;
+            border-radius: 0.75rem;
+            width: 100%;
+            outline: none;
+        }
+        .input-style:focus {
+            border-color: #00a38c;
+            box-shadow: 0 0 0 2px rgba(0, 163, 140, 0.2);
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-amarelo min-h-screen relative overflow-x-hidden">
 
-  while (Date.now() - start < timeoutMs) {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) return data.session;
-    await sleep(150);
-  }
+    <div class="fixed inset-0 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#F5DE3E] via-[#FFF3A6] to-white"></div>
+    </div>
 
-  return null;
-}
+    <div class="container mx-auto px-4 relative pb-24 min-h-screen flex items-center justify-center lg:justify-end py-10">
+        
+        <aside class="hidden lg:block absolute left-20 top-1/2 -translate-y-1/2 max-w-lg">
+            <div class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-4 py-2 backdrop-blur mb-6">
+                <i data-lucide="shield-check" class="text-verde w-4 h-4"></i>
+                <span class="text-sm font-semibold text-black/85">Sessão protegida</span>
+            </div>
 
-export default function Auth() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+            <h1 class="text-5xl font-bold tracking-tight text-black leading-tight mb-5">
+                Acesso com padrão de<br>empresa grande.
+            </h1>
+            <p class="text-lg text-black/70">
+                Identidade forte, interface limpa e operação consistente — do login ao dashboard.
+            </p>
 
-  const [isLogin, setIsLogin] = useState(searchParams.get("mode") !== "register");
+            <div class="mt-10 grid grid-cols-3 gap-3">
+                <div class="rounded-2xl bg-white/55 p-4 border border-black/10">
+                    <p class="font-semibold text-sm">Segurança</p>
+                    <p class="text-xs text-black/60">Camadas</p>
+                </div>
+                <div class="rounded-2xl bg-white/55 p-4 border border-black/10">
+                    <p class="font-semibold text-sm">Rastreio</p>
+                    <p class="text-xs text-black/60">Eventos</p>
+                </div>
+                <div class="rounded-2xl bg-white/55 p-4 border border-black/10">
+                    <p class="font-semibold text-sm">Suporte</p>
+                    <p class="text-xs text-black/60">Disputas</p>
+                </div>
+            </div>
+        </aside>
 
-  useEffect(() => {
-    const mode = searchParams.get("mode");
-    setIsLogin(mode !== "register");
-  }, [searchParams]);
+        <main class="w-full max-w-md relative z-10">
+            <div class="glass rounded-3xl shadow-2xl overflow-hidden">
+                
+                <div class="px-8 pt-9 pb-4 text-center">
+                    <h2 id="titulo-pagina" class="text-2xl font-bold text-black">Acessar sua conta</h2>
+                    <div class="mt-4 h-1 w-24 bg-[#F5DE3E] mx-auto rounded-full"></div>
+                </div>
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate("/dashboard");
-    });
-  }, [navigate]);
+                <div class="px-8 pb-9">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-black/85">E-mail</label>
+                            <input type="email" id="email" placeholder="seu@email.com" class="input-style">
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-black/85">Senha</label>
+                            <input type="password" id="password" placeholder="Mínimo 6 caracteres" class="input-style">
+                        </div>
+                    </div>
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    cpf: "",
-    birthDate: "",
-    cep: "",
-    street: "",
-    number: "",
-    complement: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-  });
+                    <div id="campos-extras" class="hidden space-y-4 mt-4 pt-4 border-t border-black/10 animate-in fade-in">
+                        
+                        <div class="text-xs font-bold text-black/70 uppercase tracking-wide mb-2">Dados Pessoais</div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-medium">Nome</label>
+                                <input type="text" id="firstName" class="input-style">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium">Sobrenome</label>
+                                <input type="text" id="lastName" class="input-style">
+                            </div>
+                        </div>
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
-  };
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-medium">CPF</label>
+                                <input type="text" id="cpf" placeholder="000.000.000-00" class="input-style">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium">Nascimento</label>
+                                <input type="date" id="birthDate" class="input-style">
+                            </div>
+                        </div>
 
-  const handleAuth = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+                        <div class="text-xs font-bold text-black/70 uppercase tracking-wide mt-4 mb-2 flex items-center gap-2">
+                            <i data-lucide="truck" class="w-3 h-3"></i> Endereço
+                        </div>
 
-    try {
-      const email = formData.email.trim().toLowerCase();
-      const password = formData.password;
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="col-span-1">
+                                <label class="text-xs font-medium">CEP</label>
+                                <input type="text" id="cep" placeholder="00000-000" class="input-style">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="text-xs font-medium">Rua</label>
+                                <input type="text" id="street" class="input-style">
+                            </div>
+                        </div>
 
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-xs font-medium">Número</label>
+                                <input type="text" id="number" class="input-style">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="text-xs font-medium">Bairro</label>
+                                <input type="text" id="neighborhood" class="input-style">
+                            </div>
+                        </div>
 
-        const session = await ensureSessionReady();
-        if (!session) {
-          throw new Error("Login ok, mas sessão não carregou. Recarregue a página e tente novamente.");
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-medium">Cidade</label>
+                                <input type="text" id="city" class="input-style">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium">Estado (UF)</label>
+                                <input type="text" id="state" placeholder="SP" class="input-style">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="btn-acao" onclick="handleAuth()" class="btn-gradiente w-full mt-6 py-3 rounded-xl text-white font-bold shadow-lg">
+                        Entrar
+                    </button>
+
+                    <p id="mensagem" class="text-center text-sm mt-3 font-medium"></p>
+
+                    <div class="text-center mt-4">
+                        <button onclick="toggleMode()" class="text-sm font-medium text-verde hover:underline">
+                            <span id="texto-toggle">Não tem uma conta? Criar agora</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            
+            <p class="mt-4 text-center text-xs text-black/50">
+                Ao continuar, você concorda com os termos e políticas.
+            </p>
+        </main>
+    </div>
+
+    <script>
+        // Inicializa Icones
+        lucide.createIcons();
+
+        // --- SUAS CREDENCIAIS ---
+        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
+        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+        // Variável para saber se é Login ou Cadastro
+        let isLoginMode = true;
+
+        // Função para trocar entre Entrar e Cadastrar
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            const camposExtras = document.getElementById('campos-extras');
+            const titulo = document.getElementById('titulo-pagina');
+            const btn = document.getElementById('btn-acao');
+            const toggleText = document.getElementById('texto-toggle');
+
+            if (isLoginMode) {
+                camposExtras.classList.add('hidden');
+                titulo.innerText = "Acessar sua conta";
+                btn.innerText = "Entrar";
+                toggleText.innerText = "Não tem uma conta? Criar agora";
+            } else {
+                camposExtras.classList.remove('hidden');
+                titulo.innerText = "Criar sua conta";
+                btn.innerText = "Criar Conta";
+                toggleText.innerText = "Já tem uma conta? Fazer login";
+            }
         }
 
-        navigate("/dashboard");
-        return;
-      }
+        // Função Principal (Login ou Cadastro)
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('mensagem');
+            const btn = document.getElementById('btn-acao');
 
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (authError) throw authError;
+            if (!email || !password) {
+                msg.innerText = "Preencha e-mail e senha.";
+                msg.style.color = "red";
+                return;
+            }
 
-      if (authData.user) {
-        const { error: profileError } = await supabase.from("profiles").upsert({
-          id: authData.user.id,
-          email,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          cpf: formData.cpf,
-          birth_date: formData.birthDate,
-          cep: formData.cep,
-          address_street: formData.street,
-          address_number: formData.number,
-          address_complement: formData.complement,
-          address_neighborhood: formData.neighborhood,
-          city: formData.city,
-          state: formData.state,
-        });
+            btn.innerText = "Processando...";
+            btn.disabled = true;
+            msg.innerText = "";
 
-        if (profileError) throw profileError;
+            if (isLoginMode) {
+                // --- MODO LOGIN ---
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                
+                if (error) {
+                    msg.innerText = "Erro: " + error.message;
+                    msg.style.color = "red";
+                    btn.innerText = "Entrar";
+                    btn.disabled = false;
+                } else {
+                    msg.innerText = "Login Sucesso! Redirecionando...";
+                    msg.style.color = "green";
+                    setTimeout(() => { window.location.href = "/" }, 1500); // Vai para home
+                }
 
-        toast({
-          title: "Sucesso!",
-          description: "Seu cadastro completo foi realizado com sucesso.",
-        });
+            } else {
+                // --- MODO CADASTRO ---
+                // 1. Cria o usuário no Auth
+                const { data: authData, error: authError } = await _supabase.auth.signUp({ email, password });
 
-        await ensureSessionReady();
-        navigate("/dashboard");
-        return;
-      }
+                if (authError) {
+                    msg.innerText = "Erro ao criar conta: " + authError.message;
+                    msg.style.color = "red";
+                    btn.innerText = "Criar Conta";
+                    btn.disabled = false;
+                    return;
+                }
 
-      throw new Error("Cadastro criado, mas usuário não retornou. Tente fazer login.");
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erro no Processo",
-        description: error?.message ?? "Erro desconhecido",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+                if (authData.user) {
+                    // 2. Salva os dados extras na tabela 'clientes'
+                    const { error: dbError } = await _supabase.from('clientes').insert({
+                        id_auth: authData.user.id, // Liga com o login
+                        nome: document.getElementById('firstName').value,
+                        sobrenome: document.getElementById('lastName').value,
+                        cpf: document.getElementById('cpf').value,
+                        nascimento: document.getElementById('birthDate').value,
+                        cep: document.getElementById('cep').value,
+                        rua: document.getElementById('street').value,
+                        numero: document.getElementById('number').value,
+                        bairro: document.getElementById('neighborhood').value,
+                        cidade: document.getElementById('city').value,
+                        estado: document.getElementById('state').value
+                    });
 
-  const toggleMode = () => {
-    const newMode = isLogin ? "register" : "login";
-    setIsLogin(!isLogin);
-    navigate(/auth?mode=${newMode});
-  };
-
-  const YELLOW = "#F5DE3E";
-  const GREEN = "#00a38c";
-  const GREEN_HOVER = "#008e7a";
-
-  // logo sem fundo (PNG)
-  const LOGO = "/logo.png";
-
-  // imagem da tarja (arquivo no /public)
-  const FAIXA = "/faixa%20de%20baixo.jpeg";
-
-  const headline = useMemo(() => (isLogin ? "Acessar sua conta" : "Criar sua conta"), [isLogin]);
-
-  return (
-    <div className="min-h-screen relative overflow-hidden bg-[#F5DE3E]">
-      {/* BACKGROUNDS (não colocar a tarja aqui) */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F5DE3E] via-[#FFF3A6] to-white" />
-        <div
-          className="absolute -top-40 left-1/2 h-[720px] w-[720px] -translate-x-1/2 rounded-full blur-3xl opacity-70"
-          style={{ background: radial-gradient(circle, ${YELLOW} 0%, transparent 62%) }}
-        />
-        <div
-          className="absolute -bottom-56 -right-40 h-[680px] w-[680px] rounded-full blur-3xl opacity-25"
-          style={{ background: radial-gradient(circle, ${GREEN} 0%, transparent 62%) }}
-        />
-      </div>
-
-      {/* Conteúdo (pb = altura da tarja, pra não cobrir campos no final) */}
-      <div className="container mx-auto px-4 relative pb-24">
-        <div className="grid min-h-screen items-center gap-10 py-10 lg:grid-cols-2 lg:gap-14">
-          {/* HERO (desktop) */}
-          <aside className="hidden lg:block">
-            <div className="max-w-xl">
-              <img src={LOGO} alt="Logo" className="h-24 w-auto object-contain mb-6" />
-
-              <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-4 py-2 backdrop-blur">
-                <ShieldCheck className="h-4 w-4" style={{ color: GREEN }} />
-                <span className="text-sm font-semibold text-black/85">Sessão protegida</span>
-                <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-black/60" />
-              </div>
-
-              <h1 className="mt-6 text-5xl font-display font-bold tracking-tight text-black leading-[1.05]">
-                Acesso com padrão de empresa grande.
-              </h1>
-
-              <p className="mt-5 text-lg text-black/70 max-w-lg">
-                Identidade forte, interface limpa, e operação consistente — do login ao dashboard.
-              </p>
-
-              <div className="mt-10 grid grid-cols-3 gap-3">
-                {[
-                  { k: "Segurança", v: "Camadas" },
-                  { k: "Rastreio", v: "Eventos" },
-                  { k: "Suporte", v: "Disputas" },
-                ].map((x) => (
-                  <div key={x.k} className="rounded-2xl border border-black/10 bg-white/55 backdrop-blur p-4">
-                    <p className="text-sm font-semibold text-black/90">{x.k}</p>
-                    <p className="mt-1 text-xs text-black/60">{x.v}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 flex items-center gap-3 rounded-2xl border border-black/10 bg-white/55 backdrop-blur p-4">
-                <div
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl"
-                  style={{ backgroundColor: ${GREEN}1A, color: GREEN }}
-                >
-                  {isLogin ? <Lock className="h-5 w-5" /> : <Truck className="h-5 w-5" />}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-black/90">{isLogin ? "Acesso rápido" : "Cadastro completo"}</p>
-                  <p className="text-xs text-black/60">{isLogin ? "Entre e continue." : "Dados pessoais + endereço."}</p>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* CARD */}
-          <main className="flex justify-center lg:justify-end">
-            <div className="w-full max-w-md">
-              <div className="overflow-hidden rounded-3xl border border-black/10 bg-[#FFF6D0]/95 backdrop-blur-xl shadow-[0_18px_60px_rgba(0,0,0,0.18)]">
-                {/* HEADER do card (centralizado) */}
-                <div className="px-8 pt-9 pb-7">
-                  <div className="flex flex-col items-center text-center">
-                    <img src={LOGO} alt="Logo" className="h-16 w-auto object-contain mb-3" />
-                    <h2 className="text-2xl font-display font-bold text-black leading-tight">{headline}</h2>
-                  </div>
-
-                  <div className="mt-6 h-px w-full bg-black/10" />
-                  <div className="mt-2 h-[3px] w-24 rounded-full mx-auto" style={{ background: YELLOW }} />
-                </div>
-
-                <form className="px-8 pb-9 space-y-6" onSubmit={handleAuth}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-black/85">
-                        E-mail
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        required
-                        autoComplete="email"
-                        placeholder="seu@email.com"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                        style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="password" className="text-black/85">
-                        Senha
-                      </Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        required
-                        autoComplete={isLogin ? "current-password" : "new-password"}
-                        placeholder="Mínimo 6 caracteres"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                        style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                      />
-                    </div>
-                  </div>
-
-                  {!isLogin && (
-                    <div className="space-y-6 pt-4 border-t border-black/10 animate-in fade-in duration-500">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-semibold tracking-wide text-black/70 uppercase">Dados pessoais</h3>
-                          <div className="h-px flex-1 ml-4 bg-black/10" />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="firstName" className="text-black/85">
-                              Nome
-                            </Label>
-                            <Input
-                              id="firstName"
-                              required
-                              value={formData.firstName}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="lastName" className="text-black/85">
-                              Sobrenome
-                            </Label>
-                            <Input
-                              id="lastName"
-                              required
-                              value={formData.lastName}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="cpf" className="text-black/85">
-                              CPF
-                            </Label>
-                            <Input
-                              id="cpf"
-                              required
-                              placeholder="000.000.000-00"
-                              value={formData.cpf}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="birthDate" className="text-black/85">
-                              Nascimento
-                            </Label>
-                            <Input
-                              id="birthDate"
-                              type="date"
-                              required
-                              value={formData.birthDate}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wide text-black/70 uppercase">
-                            <Truck className="h-4 w-4" />
-                            Endereço de entrega
-                          </h3>
-                          <div className="h-px flex-1 ml-4 bg-black/10" />
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="col-span-1 space-y-2">
-                            <Label htmlFor="cep" className="text-black/85">
-                              CEP
-                            </Label>
-                            <Input
-                              id="cep"
-                              required
-                              placeholder="00000-000"
-                              value={formData.cep}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-
-                          <div className="col-span-2 space-y-2">
-                            <Label htmlFor="street" className="text-black/85">
-                              Rua
-                            </Label>
-                            <Input
-                              id="street"
-                              required
-                              value={formData.street}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="col-span-1 space-y-2">
-                            <Label htmlFor="number" className="text-black/85">
-                              Número
-                            </Label>
-                            <Input
-                              id="number"
-                              required
-                              value={formData.number}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-
-                          <div className="col-span-2 space-y-2">
-                            <Label htmlFor="complement" className="text-black/85">
-                              Complemento
-                            </Label>
-                            <Input
-                              id="complement"
-                              value={formData.complement}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="neighborhood" className="text-black/85">
-                              Bairro
-                            </Label>
-                            <Input
-                              id="neighborhood"
-                              required
-                              value={formData.neighborhood}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="city" className="text-black/85">
-                              Cidade
-                            </Label>
-                            <Input
-                              id="city"
-                              required
-                              value={formData.city}
-                              onChange={handleChange}
-                              className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                              style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="state" className="text-black/85">
-                            Estado (UF)
-                          </Label>
-                          <Input
-                            id="state"
-                            required
-                            placeholder="Ex: SP"
-                            maxLength={2}
-                            value={formData.state}
-                            onChange={handleChange}
-                            className="h-11 rounded-xl border-black/15 bg-white/70 backdrop-blur focus-visible:ring-2"
-                            style={{ "--tw-ring-color": ${GREEN}33 } as CSSProperties}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <Button
-                    type="submit"
-                    size="lg"
-                    disabled={loading}
-                    className="w-full rounded-xl font-semibold text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] transition-all
-                               bg-[linear-gradient(135deg,#00a38c_0%,#008e7a_100%)]
-                               hover:bg-[linear-gradient(135deg,#008e7a_0%,#006e5f_100%)]
-                               active:scale-[0.99]"
-                  >
-                    {loading ? "Processando..." : isLogin ? "Entrar" : "Criar Conta"}
-                  </Button>
-
-                  <div className="text-center pt-1">
-                    <button
-                      type="button"
-                      onClick={toggleMode}
-                      className="text-sm font-medium hover:underline"
-                      style={{ color: GREEN_HOVER }}
-                    >
-                      {isLogin ? "Não tem uma conta? Criar agora" : "Já tem uma conta? Fazer login"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              <p className="mt-4 text-center text-xs text-black/55">
-                Ao continuar, você concorda com os termos e políticas aplicáveis.
-              </p>
-            </div>
-          </main>
-        </div>
-      </div>
-
-      {/* TARJA INFERIOR (full-width, fixa no viewport) */}
-      <div class="footer__disclaimer">
-  <div class="lost-container">
-    <div class="footer__disclaimer-logo-wrapper">
-      <link itemprop="url" href="https://pagseguro.uol.com.br/" />
-      <link
-        itemprop="logo"
-        href="//assets.pagseguro.com.br/ps-website-assets/v15.257.0/ps-bootstrap/svg/pagbank/logo-pagbank-negative-filled.svg"
-      />
-
-      <img
-        width="102"
-        height="28"
-        class="footer__disclaimer-logo"
-        src="//assets.pagseguro.com.br/ps-website-assets/v15.257.0/ps-bootstrap/svg/pagbank/logo-pagbank-negative-filled.svg"
-        alt="garantindo"
-      />
-    </div>
-
-    <div class="footer__disclaimer-text">
-      <p>© 1996-2025 Todos os direitos reservados.</p>
-      <p>
-        <span itemprop="name">PAGSEGURO INTERNET INSTITUIÇÃO DE PAGAMENTO S/A</span>
-        - CNPJ/MF 08.561.701/0001-01
-      </p>
-      <p itemscope itemtype="http://schema.org/PostalAddress" itemprop="location">
-        <span itemprop="streetAddress">Av. Brigadeiro Faria Lima, 1.384</span>,
-        <span itemprop="addressLocality">São Paulo</span> -
-        <span itemprop="addressRegion">SP</span> - CEP
-        <span itemprop="postalCode">01451-001</span>
-        <meta itemprop="addressCountry" content="BR" />
-      </p>
-    </div>
-  </div>
-</div>
-
-      <footer className="fixed bottom-0 left-0 right-0 z-50 bg-black">
-        <img src={FAIXA} alt="Faixa inferior" className="w-full h-24 object-contain" />
-      </footer>
-    </div>
-  );
-}
+                    if (dbError) {
+                        console.error(dbError);
+                        msg.innerText = "Conta criada, mas erro ao salvar dados: " + dbError.message;
+                        msg.style.color = "orange";
+                    } else {
+                        msg.innerText = "Cadastro completo! Você já pode entrar.";
+                        msg.style.color = "green";
+                        // Volta para o modo login
+                        setTimeout(() => { toggleMode(); }, 2000);
+                    }
+                }
+                btn.innerText = "Criar Conta";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
