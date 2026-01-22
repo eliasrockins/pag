@@ -31,10 +31,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Suas chaves (Copiadas da sua imagem)
+        // --- CORREÇÃO AQUI ---
+        // Agora usamos nomes diferentes para não travar
         const url = 'https://eedegpggzooimuvytmyt.supabase.co'
         const chave = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
-        const supabase = supabase.createClient(url, chave)
+        
+        // Mudei de 'supabase' para '_supabase' para corrigir o erro
+        const _supabase = supabase.createClient(url, chave)
 
         // Função para CRIAR CONTA
         async function cadastro() {
@@ -45,13 +48,13 @@
             if(!email || !password) { status.innerText = "Preencha tudo!"; return; }
             status.innerText = "Criando conta..."
 
-            const { data, error } = await supabase.auth.signUp({ email, password })
+            const { data, error } = await _supabase.auth.signUp({ email, password })
             
             if(error) {
                 status.innerText = "Erro: " + error.message
                 status.style.color = "red"
             } else {
-                status.innerText = "Conta criada! Pode entrar."
+                status.innerText = "Conta criada! Verifique seu e-mail ou tente entrar."
                 status.style.color = "green"
             }
         }
@@ -65,7 +68,7 @@
             if(!email || !password) { status.innerText = "Preencha tudo!"; return; }
             status.innerText = "Entrando..."
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password })
 
             if(error) {
                 status.innerText = "E-mail ou senha errados."
