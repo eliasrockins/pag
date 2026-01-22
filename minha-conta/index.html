@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta - Acesso</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .caixa-login { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 90%; max-width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 5px; }
+        .btn-entrar { background-color: #000; color: #fff; }
+        .btn-criar { background-color: #ddd; color: #333; margin-top: 10px; }
+        #status { margin-top: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="caixa-login">
+        <h2>Área do Cliente</h2>
+        <p>Digite seu e-mail e senha</p>
+        
+        <input type="email" id="email" placeholder="Seu e-mail">
+        <input type="password" id="senha" placeholder="Sua senha">
+        
+        <button class="btn-entrar" onclick="login()">ENTRAR</button>
+        <button class="btn-criar" onclick="cadastro()">CRIAR CONTA NOVA</button>
+
+        <p id="status"></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Suas chaves (Copiadas da sua imagem)
+        const url = 'https://eedegpggzooimuvytmyt.supabase.co'
+        const chave = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
+        const supabase = supabase.createClient(url, chave)
+
+        // Função para CRIAR CONTA
+        async function cadastro() {
+            const email = document.getElementById('email').value
+            const password = document.getElementById('senha').value
+            const status = document.getElementById('status')
+
+            if(!email || !password) { status.innerText = "Preencha tudo!"; return; }
+            status.innerText = "Criando conta..."
+
+            const { data, error } = await supabase.auth.signUp({ email, password })
+            
+            if(error) {
+                status.innerText = "Erro: " + error.message
+                status.style.color = "red"
+            } else {
+                status.innerText = "Conta criada! Pode entrar."
+                status.style.color = "green"
+            }
+        }
+
+        // Função para ENTRAR (LOGIN)
+        async function login() {
+            const email = document.getElementById('email').value
+            const password = document.getElementById('senha').value
+            const status = document.getElementById('status')
+
+            if(!email || !password) { status.innerText = "Preencha tudo!"; return; }
+            status.innerText = "Entrando..."
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+            if(error) {
+                status.innerText = "E-mail ou senha errados."
+                status.style.color = "red"
+            } else {
+                status.innerText = "Sucesso! Carregando..."
+                status.style.color = "green"
+                // Aqui no futuro vamos mostrar as compras
+                alert("Login realizado com sucesso! (Em breve seus pedidos aparecerão aqui)")
+            }
+        }
+    </script>
+</body>
+</html>
