@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Área Restrita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>body { background-color: #f3f4f6; font-family: sans-serif; }</style>
+</head>
+<body class="p-6 hidden" id="corpo-pagina"> 
+
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Painel Administrativo</h1>
+            <div class="text-sm text-gray-500">
+                Logado como: <span id="admin-email" class="font-bold text-gray-800">...</span>
+                <button onclick="sair()" class="ml-4 text-red-500 hover:underline">Sair</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="bg-white p-4 rounded-xl shadow md:col-span-1 h-[500px] overflow-y-auto">
+                <h2 class="text-green-600 font-bold mb-4 flex items-center gap-2">
+                    1. Selecionar Cliente
+                </h2>
+                <input type="text" id="busca-cliente" placeholder="Buscar nome..." class="w-full p-2 border rounded mb-2 text-sm" onkeyup="filtrarClientes()">
+                <div id="lista-clientes" class="space-y-2">
+                    <p class="text-gray-400 text-sm">Carregando...</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow md:col-span-2">
+                <h2 class="text-green-600 font-bold mb-6">2. Detalhes do Lançamento</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cliente Selecionado</label>
+                    <input type="text" id="cliente-selecionado" class="w-full p-3 bg-gray-100 border rounded text-gray-500" disabled placeholder="Clique em um cliente na lista ao lado">
+                    <input type="hidden" id="id-cliente-selecionado">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+                    <select id="select-produto" class="w-full p-3 border rounded focus:ring-2 focus:ring-green-500" onchange="atualizarPreco()">
+                        <option value="">Selecione um produto...</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
+                    <input type="text" id="valor-produto" class="w-full p-3 border rounded bg-gray-50">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Chave PIX Copia e Cola</label>
+                    <textarea id="pix-code" rows="4" class="w-full p-3 border rounded focus:ring-2 focus:ring-green-500" placeholder="Cole o código PIX grandão aqui..."></textarea>
+                </div>
+
+                <button onclick="lancarPedido()" id="btn-lancar" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition-colors">
+                    + Lançar para o Cliente
+                </button>
+                <p id="msg-status" class="mt-3 text-center text-sm font-medium"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
+        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+        // --- SEGURANÇA: VERIFICA SE É ADMIN ---
+        async function verificarAdmin() {
+            const { data: { user } } = await _supabase.auth.getUser();
+
+            if (!user) {
+                window.location.href = "/minha-conta"; 
+                return;
+            }
+
+            // Verifica se o email está na tabela 'admins'
+            const { data: adminList } = await _supabase
+                .from('admins')
+                .select('*')
+                .eq('email', user.email);
+
+            if (!adminList || adminList.length === 0) {
+                alert("ACESSO NEGADO: Você não é administrador.");
+                window.location.href = "/dashboard"; 
+            } else {
+                document.getElementById('corpo-pagina').classList.remove('hidden');
+                document.getElementById('admin-email').innerText = user.email;
+                iniciarPainel();
+            }
+        }
+        verificarAdmin();
+
+        async function iniciarPainel() {
+            carregarClientes();
+            carregarProdutos();
+        }
+
+        async function carregarClientes() {
+            const { data } = await _supabase.from('clientes').select('*').order('nome', { ascending: true });
+            const lista = document.getElementById('lista-clientes');
+            lista.innerHTML = "";
+
+            if (data) {
+                data.forEach(cliente => {
+                    const nomeCompleto = `${cliente.nome} ${cliente.sobrenome}`;
+                    const item = document.createElement('div');
+                    item.className = "p-3 border rounded cursor-pointer hover:bg-green-50 transition-colors flex justify-between items-center cliente-item";
+                    item.innerHTML = `<span class="font-medium capitalize">${nomeCompleto}</span> <span class="text-xs text-gray-400">Selecionar</span>`;
+                    
+                    item.onclick = () => {
+                        document.querySelectorAll('.cliente-item').forEach(d => d.classList.remove('bg-green-100', 'border-green-500'));
+                        item.classList.add('bg-green-100', 'border-green-500');
+                        document.getElementById('cliente-selecionado').value = nomeCompleto; 
+                        document.getElementById('id-cliente-selecionado').value = cliente.id_auth; 
+                    };
+                    lista.appendChild(item);
+                });
+            }
+        }
+
+        async function carregarProdutos() {
+            const { data } = await _supabase.from('produtos').select('*');
+            const select = document.getElementById('select-produto');
+            if (data) {
+                data.forEach(prod => {
+                    const option = document.createElement('option');
+                    option.value = prod.nome;
+                    option.dataset.preco = prod.preco;
+                    option.innerText = `${prod.nome} - R$ ${prod.preco}`;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        function atualizarPreco() {
+            const select = document.getElementById('select-produto');
+            const preco = select.options[select.selectedIndex].dataset.preco;
+            document.getElementById('valor-produto').value = preco || "";
+        }
+
+        async function lancarPedido() {
+            const btn = document.getElementById('btn-lancar');
+            const msg = document.getElementById('msg-status');
+            
+            const idAuthCliente = document.getElementById('id-cliente-selecionado').value;
+            const produto = document.getElementById('select-produto').value;
+            const valor = document.getElementById('valor-produto').value;
+            const pix = document.getElementById('pix-code').value;
+
+            if (!idAuthCliente || !produto || !valor) {
+                alert("Selecione um cliente e um produto!");
+                return;
+            }
+
+            btn.innerText = "Lançando..."; btn.disabled = true;
+
+            const { error } = await _supabase.from('vendas').insert({
+                email_cliente: idAuthCliente, 
+                produto: produto,
+                valor: valor,
+                status: 'Pendente',
+                pix_copia_cola: pix
+            });
+
+            if (error) {
+                msg.innerText = "Erro: " + error.message; msg.style.color = "red";
+            } else {
+                msg.innerText = "Sucesso! Pedido enviado."; msg.style.color = "green";
+                document.getElementById('pix-code').value = "";
+            }
+            btn.innerText = "+ Lançar para o Cliente"; btn.disabled = false;
+        }
+
+        function filtrarClientes() {
+            const termo = document.getElementById('busca-cliente').value.toLowerCase();
+            const itens = document.querySelectorAll('.cliente-item');
+            itens.forEach(item => {
+                const texto = item.innerText.toLowerCase();
+                item.style.display = texto.includes(termo) ? "flex" : "none";
+            });
+        }
+
+        async function sair() {
+            await _supabase.auth.signOut();
+            window.location.href = "/minha-conta";
+        }
+    </script>
+</body>
+</html>
