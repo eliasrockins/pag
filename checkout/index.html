@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Pagamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="loader" class="flex flex-col items-center gap-3">
+        <div class="animate-spin text-green-600">
+            <i data-lucide="loader-2" class="w-10 h-10"></i>
+        </div>
+        <p class="text-gray-500 font-medium">Carregando pedido...</p>
+    </div>
+
+    <div id="tela-sucesso" class="hidden max-w-xl w-full bg-white rounded-3xl shadow-xl p-12 text-center space-y-6 fade-in">
+        <div class="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+            <i data-lucide="party-popper" class="w-10 h-10"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-slate-900">Compra Aprovada!</h1>
+        <p class="text-slate-600">Seu pagamento foi confirmado com sucesso.</p>
+        <a href="/dashboard" class="block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition-colors">
+            Acessar meu Produto
+        </a>
+    </div>
+
+    <div id="tela-checkout" class="hidden max-w-xl w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 fade-in">
+        <div class="p-8 md:p-12 space-y-8 relative">
+            
+            <a href="/dashboard" class="flex items-center gap-2 text-slate-500 hover:text-green-600 transition-colors cursor-pointer">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="text-sm font-medium">Voltar</span>
+            </a>
+
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-slate-900">Finalizar Pagamento</h1>
+            </div>
+
+            <div class="bg-slate-50 p-8 rounded-2xl space-y-6 border border-dashed border-slate-200">
+                <div class="flex justify-between items-center text-lg">
+                    <span class="text-slate-500">Produto:</span>
+                    <span class="font-bold text-slate-900" id="nome-produto">...</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-slate-200 pt-4">
+                    <span class="text-slate-500">Total a pagar:</span>
+                    <span class="text-3xl font-black text-green-600" id="valor-produto">R$ ...</span>
+                </div>
+            </div>
+
+            <div id="area-pix" class="space-y-4">
+                <div class="relative">
+                    <textarea id="pix-texto" readonly class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono h-24 resize-none focus:outline-none text-gray-500"></textarea>
+                </div>
+
+                <button onclick="copiarPix()" id="btn-copiar" class="w-full h-16 text-xl font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-200 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="copy" class="w-6 h-6"></i> Copiar Código Pix
+                </button>
+
+                <div class="flex items-center justify-center gap-2 py-2 w-3/4 mx-auto rounded-lg border bg-slate-50 border-slate-100">
+                    <i data-lucide="timer" class="w-4 h-4 text-slate-400"></i>
+                    <span class="font-mono font-semibold text-sm text-slate-500" id="timer-texto">Expira em: 23:59</span>
+                </div>
+            </div>
+
+            <div class="pt-6 text-center space-y-3">
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Pagamento intermediado por:</p>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Pagseguro-logo.svg" alt="PagSeguro" class="h-6 w-auto object-contain block mx-auto opacity-50">
+            </div>
+        </div>
+    </div>
+
+    <div id="tela-expirado" class="hidden max-w-xl w-full bg-white rounded-3xl shadow-xl p-12 text-center space-y-6 fade-in">
+        <div class="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+            <i data-lucide="alert-circle" class="w-10 h-10"></i>
+        </div>
+        <h3 class="text-red-900 font-bold text-xl">Pagamento Expirado</h3>
+        <p class="text-red-700 text-sm leading-relaxed">
+            Este código Pix expirou por segurança.<br>
+            <span class="font-bold">Solicite um novo link no painel.</span>
+        </p>
+        <a href="/dashboard" class="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-4 rounded-xl transition-colors">
+            Voltar ao Painel
+        </a>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // SUAS CREDENCIAIS
+        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
+        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+        // 1. PEGAR O ID DA URL (?id=123)
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('id');
+
+        if (!orderId) {
+            alert("Pedido não encontrado!");
+            window.location.href = "/dashboard";
+        }
+
+        // 2. BUSCAR DADOS DO PEDIDO
+        async function carregarPedido() {
+            const { data, error } = await _supabase
+                .from('vendas')
+                .select('*')
+                .eq('id', orderId)
+                .single();
+
+            document.getElementById('loader').classList.add('hidden');
+
+            if (error || !data) {
+                alert("Erro ao carregar pedido.");
+                return;
+            }
+
+            // Verifica Status
+            if (data.status === 'Aprovado' || data.status === 'Pago') {
+                mostrarSucesso();
+            } else {
+                mostrarCheckout(data);
+                iniciarRealtime(); // Fica ouvindo se mudar para Aprovado
+            }
+        }
+        carregarPedido();
+
+        function mostrarCheckout(venda) {
+            document.getElementById('tela-checkout').classList.remove('hidden');
+            
+            document.getElementById('nome-produto').innerText = venda.produto;
+            document.getElementById('valor-produto').innerText = "R$ " + venda.valor;
+            
+            // Se tiver PIX, mostra. Se não, avisa.
+            if (venda.pix_copia_cola) {
+                document.getElementById('pix-texto').value = venda.pix_copia_cola;
+            } else {
+                document.getElementById('pix-texto').value = "Aguardando geração do PIX pelo administrador...";
+                document.getElementById('btn-copiar').disabled = true;
+                document.getElementById('btn-copiar').classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            // Simula Timer (24h a partir da criação) - Opcional
+            iniciarTimer(venda.created_at);
+        }
+
+        function mostrarSucesso() {
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('tela-checkout').classList.add('hidden');
+            document.getElementById('tela-sucesso').classList.remove('hidden');
+            lucide.createIcons(); // Recarrega ícones
+        }
+
+        function copiarPix() {
+            const texto = document.getElementById('pix-texto');
+            texto.select();
+            texto.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(texto.value);
+
+            const btn = document.getElementById('btn-copiar');
+            const originalHTML = btn.innerHTML;
+            
+            btn.style.backgroundColor = "black";
+            btn.innerHTML = `<i data-lucide="check" class="w-6 h-6"></i> Copiado!`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                btn.style.backgroundColor = ""; // Volta ao original (classe css)
+                btn.innerHTML = originalHTML;
+                lucide.createIcons();
+            }, 3000);
+        }
+
+        // ATUALIZAÇÃO EM TEMPO REAL (Mágica)
+        function iniciarRealtime() {
+            _supabase
+                .channel('mudanca-status')
+                .on(
+                    'postgres_changes',
+                    { event: 'UPDATE', schema: 'public', table: 'vendas', filter: `id=eq.${orderId}` },
+                    (payload) => {
+                        console.log("Mudou!", payload);
+                        if (payload.new.status === 'Aprovado' || payload.new.status === 'Pago') {
+                            mostrarSucesso();
+                        }
+                    }
+                )
+                .subscribe();
+        }
+
+        function iniciarTimer(dataCriacao) {
+            // Expira em 24h (exemplo simples)
+            const criacao = new Date(dataCriacao).getTime();
+            const expiracao = criacao + (24 * 60 * 60 * 1000); 
+
+            const intervalo = setInterval(() => {
+                const agora = new Date().getTime();
+                const distancia = expiracao - agora;
+
+                if (distancia < 0) {
+                    clearInterval(intervalo);
+                    document.getElementById('tela-checkout').classList.add('hidden');
+                    document.getElementById('tela-expirado').classList.remove('hidden');
+                    lucide.createIcons();
+                    return;
+                }
+
+                const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+                
+                document.getElementById('timer-texto').innerText = `Expira em: ${horas}h ${minutos}m`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
