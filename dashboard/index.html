@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Cliente</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
         .active-tab { background-color: #e5e7eb; color: #000; font-weight: 600; border-right: 4px solid #00a38c; }
@@ -34,20 +30,16 @@
                 </div>
                 <span class="font-bold text-lg tracking-tight">Área do Cliente</span>
             </div>
-            
             <nav class="p-4 space-y-2">
                 <button onclick="mudarAba('painel')" id="btn-painel" class="w-full flex items-center gap-3 px-4 py-3 text-sm rounded-lg hover:bg-gray-100 transition-colors active-tab">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Início
                 </button>
-                
                 <button onclick="mudarAba('pedidos')" id="btn-pedidos" class="w-full flex items-center gap-3 px-4 py-3 text-sm rounded-lg hover:bg-gray-100 transition-colors">
                     <i data-lucide="package" class="w-4 h-4"></i> Meus Pedidos
                 </button>
-                
                 <button onclick="mudarAba('dados')" id="btn-dados" class="w-full flex items-center gap-3 px-4 py-3 text-sm rounded-lg hover:bg-gray-100 transition-colors">
                     <i data-lucide="user" class="w-4 h-4"></i> Meus Dados
                 </button>
-
                 <div class="pt-4 mt-4 border-t border-gray-100">
                     <button onclick="sair()" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors">
                         <i data-lucide="log-out" class="w-4 h-4"></i> Sair
@@ -57,15 +49,12 @@
         </aside>
 
         <main class="flex-1 p-6 md:p-10 overflow-y-auto">
-            
             <div class="flex justify-between items-center mb-8">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900">Olá, <span id="nome-usuario">Usuário</span></h1>
                     <p class="text-gray-500 text-sm">Bem-vindo ao seu painel de controle.</p>
                 </div>
-                <div class="text-xs text-gray-400 bg-white px-3 py-1 rounded-full border shadow-sm" id="email-usuario">
-                    carregando...
-                </div>
+                <div class="text-xs text-gray-400 bg-white px-3 py-1 rounded-full border shadow-sm" id="email-usuario">...</div>
             </div>
 
             <div id="sec-painel" class="fade-in">
@@ -75,18 +64,7 @@
                         <p class="text-yellow-800 text-sm opacity-80">Confira as atualizações na sua conta.</p>
                     </div>
                 </div>
-
                 <div class="grid gap-4 md:grid-cols-3">
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-blue-100 text-blue-600 rounded-lg">
-                                <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
-                            </div>
-                            <span class="font-semibold text-sm">Solicitar<br>Reembolso</span>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 group-hover:text-blue-600"></i>
-                    </div>
-
                     <div class="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
                         <div class="flex items-center gap-4">
                             <div class="p-3 bg-amber-100 text-amber-600 rounded-lg">
@@ -96,22 +74,11 @@
                         </div>
                         <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 group-hover:text-amber-600"></i>
                     </div>
-
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg">
-                                <i data-lucide="credit-card" class="w-6 h-6"></i>
-                            </div>
-                            <span class="font-semibold text-sm">Status do<br>Pagamento</span>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 group-hover:text-emerald-600"></i>
-                    </div>
                 </div>
             </div>
 
             <div id="sec-pedidos" class="hidden-section fade-in">
                 <h2 class="text-xl font-bold mb-4">Histórico de Pedidos</h2>
-                
                 <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-xs">
@@ -119,15 +86,11 @@
                                 <th class="px-6 py-4 font-semibold">Produto</th>
                                 <th class="px-6 py-4 font-semibold">Valor</th>
                                 <th class="px-6 py-4 font-semibold">Status</th>
-                                <th class="px-6 py-4 font-semibold">Data</th>
+                                <th class="px-6 py-4 font-semibold text-right">Ação</th>
                             </tr>
                         </thead>
                         <tbody id="lista-vendas" class="divide-y divide-gray-100">
-                            <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                                    Carregando seus pedidos...
-                                </td>
-                            </tr>
+                            <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Carregando seus pedidos...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -137,88 +100,53 @@
                 <h2 class="text-xl font-bold mb-4">Meus Dados Cadastrais</h2>
                 <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm max-w-2xl">
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase">Nome</label>
-                            <div id="view-nome" class="p-2 bg-gray-50 rounded border border-gray-200 mt-1">...</div>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label>
-                            <div id="view-sobrenome" class="p-2 bg-gray-50 rounded border border-gray-200 mt-1">...</div>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase">CPF</label>
-                            <div id="view-cpf" class="p-2 bg-gray-50 rounded border border-gray-200 mt-1">...</div>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase">CEP</label>
-                            <div id="view-cep" class="p-2 bg-gray-50 rounded border border-gray-200 mt-1">...</div>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="text-xs font-semibold text-gray-500 uppercase">Endereço Completo</label>
-                            <div id="view-endereco" class="p-2 bg-gray-50 rounded border border-gray-200 mt-1">...</div>
-                        </div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Nome</label><div id="view-nome" class="p-2 bg-gray-50 rounded border mt-1">...</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1">...</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CPF</label><div id="view-cpf" class="p-2 bg-gray-50 rounded border mt-1">...</div></div>
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
     <script>
-        // Inicializa Icones
         lucide.createIcons();
-
-        // SUAS CREDENCIAIS
         const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
         const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
-        // 1. VERIFICA SE ESTÁ LOGADO
         async function checkAuth() {
             const { data: { user } } = await _supabase.auth.getUser()
-
             if (!user) {
-                // Se não tem usuário, chuta de volta para o login
                 window.location.href = "/minha-conta"
             } else {
-                // Se tem usuário, libera a tela e carrega dados
                 document.getElementById('loading-screen').classList.add('hidden')
                 document.getElementById('email-usuario').innerText = user.email
-                document.getElementById('nome-usuario').innerText = user.email.split('@')[0]
                 
-                // Carrega as tabelas
-                carregarVendas(user.email)
+                // AQUI ESTÁ A CORREÇÃO: Passamos o ID, não o email
+                carregarVendas(user.id) 
                 carregarDadosCliente(user.id)
             }
         }
         checkAuth();
 
-        // 2. FUNÇÃO DE NAVEGAÇÃO (Abas)
         function mudarAba(aba) {
-            // Esconde todas
-            document.getElementById('sec-painel').classList.add('hidden-section')
-            document.getElementById('sec-pedidos').classList.add('hidden-section')
-            document.getElementById('sec-dados').classList.add('hidden-section')
-            
-            // Tira estilo dos botões
-            document.getElementById('btn-painel').classList.remove('active-tab')
-            document.getElementById('btn-pedidos').classList.remove('active-tab')
-            document.getElementById('btn-dados').classList.remove('active-tab')
-
-            // Mostra a escolhida
+            ['painel', 'pedidos', 'dados'].forEach(sec => {
+                document.getElementById('sec-' + sec).classList.add('hidden-section')
+                document.getElementById('btn-' + sec).classList.remove('active-tab')
+            })
             document.getElementById('sec-' + aba).classList.remove('hidden-section')
             document.getElementById('btn-' + aba).classList.add('active-tab')
         }
 
-        // 3. CARREGAR VENDAS (Tabela 'vendas')
-        async function carregarVendas(email) {
+        async function carregarVendas(userId) {
             const tbody = document.getElementById('lista-vendas')
             
-            // Busca na tabela vendas onde email_cliente for igual ao do usuario
+            // BUSCA PELO ID (userId) NA COLUNA email_cliente
             const { data, error } = await _supabase
                 .from('vendas')
                 .select('*')
-                .eq('email_cliente', email)
+                .eq('email_cliente', userId) // <-- PULO DO GATO AQUI
 
             if (error) {
                 console.error(error)
@@ -226,57 +154,47 @@
                 return
             }
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`
             } else {
-                tbody.innerHTML = "" // Limpa
+                tbody.innerHTML = "" 
                 data.forEach(venda => {
-                    // Formata data
-                    const dataFormatada = new Date(venda.created_at).toLocaleDateString('pt-BR');
-                    
-                    // Cor do Status
                     let statusColor = "bg-gray-100 text-gray-800"
                     if(venda.status === 'Pago' || venda.status === 'Aprovado') statusColor = "bg-green-100 text-green-800"
                     if(venda.status === 'Pendente') statusColor = "bg-yellow-100 text-yellow-800"
 
+                    // BOTÃO DE PAGAR
+                    let acao = "";
+                    if (venda.status === 'Pendente') {
+                        acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-700 transition-colors shadow-sm">Pagar Agora <i data-lucide="arrow-right" class="w-3 h-3"></i></a>`;
+                    } else {
+                        acao = `<span class="text-green-600 font-bold text-xs flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
+                    }
+
                     const linha = `
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-gray-900">${venda.produto || 'Produto sem nome'}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">${venda.produto || 'Produto'}</td>
                             <td class="px-6 py-4">R$ ${venda.valor}</td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded-full text-xs font-bold ${statusColor}">${venda.status}</span>
-                            </td>
-                            <td class="px-6 py-4 text-gray-500">${dataFormatada}</td>
+                            <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusColor}">${venda.status}</span></td>
+                            <td class="px-6 py-4 text-right">${acao}</td>
                         </tr>
                     `
                     tbody.innerHTML += linha
-                })
+                });
+                lucide.createIcons();
             }
         }
 
-        // 4. CARREGAR DADOS DO CLIENTE (Tabela 'clientes')
         async function carregarDadosCliente(userId) {
-            // Busca na tabela clientes onde id_auth for igual ao ID do usuario logado
-            const { data, error } = await _supabase
-                .from('clientes')
-                .select('*')
-                .eq('id_auth', userId)
-                .single() // Espera só um resultado
-
+            const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).single()
             if (data) {
                 document.getElementById('nome-usuario').innerText = data.nome || "Usuário"
-                
                 document.getElementById('view-nome').innerText = data.nome
                 document.getElementById('view-sobrenome').innerText = data.sobrenome
                 document.getElementById('view-cpf').innerText = data.cpf
-                document.getElementById('view-cep').innerText = data.cep
-                
-                const enderecoCompleto = `${data.rua}, ${data.numero} - ${data.bairro} (${data.cidade}/${data.estado})`
-                document.getElementById('view-endereco').innerText = enderecoCompleto
             }
         }
 
-        // 5. SAIR
         async function sair() {
             await _supabase.auth.signOut()
             window.location.href = "/"
