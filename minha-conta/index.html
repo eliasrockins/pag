@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso Seguro - PagBank Style</title>
+    <title>Acesso Seguro</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -38,12 +36,9 @@
             </div>
 
             <h1 class="text-5xl font-bold tracking-tight text-black leading-tight mb-5">
-                Acesso com padrão de<br>empresa grande.
+                Crie sua conta.
             </h1>
-            <p class="text-lg text-black/70">
-                Identidade forte, interface limpa e operação consistente — do login ao dashboard.
-            </p>
-        </aside>
+            </aside>
 
         <main class="w-full max-w-md relative z-10">
             <div class="glass rounded-3xl shadow-2xl overflow-hidden">
@@ -176,7 +171,6 @@
                     msg.innerText = "Login Sucesso! Redirecionando...";
                     msg.style.color = "green";
                     
-                    // --- REDIRECIONAMENTO CORRIGIDO ---
                     setTimeout(() => { window.location.href = "/dashboard" }, 1500);
                 }
 
