@@ -68,16 +68,39 @@
                         <p class="text-yellow-800 text-sm opacity-80">Acompanhe seus pedidos em tempo real.</p>
                     </div>
                 </div>
+
                 <div class="grid gap-4 md:grid-cols-3">
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
+                    
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group">
                         <div class="flex items-center gap-4">
-                            <div class="p-3 bg-amber-100 text-amber-600 rounded-lg">
+                            <div class="p-3 bg-blue-200 text-blue-700 rounded-lg">
+                                <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                            </div>
+                            <span class="font-semibold text-sm text-gray-800">Solicitação de<br>Reembolso</span>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-blue-300 group-hover:text-blue-600"></i>
+                    </div>
+
+                    <div class="bg-yellow-50 p-6 rounded-xl border border-yellow-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-yellow-200 text-yellow-800 rounded-lg">
                                 <i data-lucide="package" class="w-6 h-6"></i>
                             </div>
-                            <span class="font-semibold text-sm">Meus<br>Pedidos</span>
+                            <span class="font-semibold text-sm text-gray-800">Acompanhar<br>Pedido</span>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 group-hover:text-amber-600"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-yellow-300 group-hover:text-yellow-600"></i>
                     </div>
+
+                    <div class="bg-green-50 p-6 rounded-xl border border-green-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-green-200 text-green-700 rounded-lg">
+                                <i data-lucide="credit-card" class="w-6 h-6"></i>
+                            </div>
+                            <span class="font-semibold text-sm text-gray-800">Status do<br>Pagamento</span>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-green-300 group-hover:text-green-600"></i>
+                    </div>
+
                 </div>
             </div>
 
@@ -90,7 +113,8 @@
                                 <tr>
                                     <th class="px-3 py-3 md:px-6 md:py-4 font-semibold w-2/5">Produto</th>
                                     <th class="px-2 py-3 md:px-6 md:py-4 font-semibold">Valor</th>
-                                    <th class="px-2 py-3 md:px-6 md:py-4 font-semibold text-center hidden md:table-cell">Status</th> <th class="px-3 py-3 md:px-6 md:py-4 font-semibold text-right">Ação</th>
+                                    <th class="px-2 py-3 md:px-6 md:py-4 font-semibold text-center hidden md:table-cell">Status</th> 
+                                    <th class="px-3 py-3 md:px-6 md:py-4 font-semibold text-right">Ação</th>
                                 </tr>
                             </thead>
                             <tbody id="lista-vendas" class="divide-y divide-gray-100">
@@ -120,7 +144,6 @@
         const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
-        // Função principal
         async function initDashboard() {
             try {
                 const { data, error } = await _supabase.auth.getUser();
@@ -173,7 +196,6 @@
                 tbody.innerHTML = "";
                 data.forEach(venda => {
                     let statusClass = "bg-yellow-100 text-yellow-800";
-                    // Botão mais compacto no mobile
                     let acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 shadow-sm w-full md:w-auto">Pagar</a>`;
 
                     if(venda.status === 'Pago' || venda.status === 'Aprovado') {
@@ -181,7 +203,6 @@
                         acao = `<span class="text-green-600 font-bold text-xs flex justify-end items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
                     }
 
-                    // A MÁGICA VISUAL ESTÁ AQUI NA CLASSE 'break-words'
                     const row = `
                         <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50 align-top">
                             <td class="px-3 py-3 md:px-6 md:py-4 text-gray-900 break-words max-w-[120px] md:max-w-none">
