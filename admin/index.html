@@ -3,65 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - Controle Total</title>
+    <title>Painel Admin - Debug</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>body { background-color: #f3f4f6; font-family: sans-serif; }</style>
 </head>
-<body class="p-6 hidden" id="corpo-pagina"> 
+<body class="p-6"> <div id="status-screen" class="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow text-center">
+        <h2 class="text-xl font-bold text-gray-700 mb-2">Carregando Sistema...</h2>
+        <p id="status-msg" class="text-gray-500 text-sm">Verificando suas credenciais.</p>
+        <button onclick="window.location.reload()" class="hidden mt-4 text-blue-600 underline">Tentar Novamente</button>
+    </div>
 
-    <div class="max-w-7xl mx-auto space-y-8">
+    <div id="painel-principal" class="hidden max-w-7xl mx-auto space-y-8">
+        
         <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
             <h1 class="text-2xl font-bold text-gray-800">Painel Administrativo</h1>
             <div class="text-sm text-gray-500 flex items-center gap-4">
                 <span>Logado: <span id="admin-email" class="font-bold text-gray-800">...</span></span>
-                <button onclick="window.location.reload()" class="text-blue-600 hover:underline">🔄 Atualizar Tela</button>
                 <button onclick="sair()" class="text-red-500 hover:underline border border-red-200 px-3 py-1 rounded">Sair</button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
             <div class="bg-white p-4 rounded-xl shadow md:col-span-1 h-[500px] overflow-y-auto">
-                <h2 class="text-green-600 font-bold mb-4 flex items-center gap-2">
-                    1. Selecionar Cliente
-                </h2>
-                <input type="text" id="busca-cliente" placeholder="Buscar nome..." class="w-full p-2 border rounded mb-2 text-sm" onkeyup="filtrarClientes()">
-                <div id="lista-clientes" class="space-y-2">
-                    <p class="text-gray-400 text-sm">Carregando...</p>
-                </div>
+                <h2 class="text-green-600 font-bold mb-4">1. Selecionar Cliente</h2>
+                <input type="text" id="busca-cliente" placeholder="Buscar..." class="w-full p-2 border rounded mb-2 text-sm" onkeyup="filtrarClientes()">
+                <div id="lista-clientes" class="space-y-2"><p class="text-gray-400 text-sm">Carregando...</p></div>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow md:col-span-2">
-                <h2 class="text-green-600 font-bold mb-6">2. Lançar Nova Cobrança</h2>
-                
+                <h2 class="text-green-600 font-bold mb-6">2. Lançar Cobrança</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
-                        <input type="text" id="cliente-selecionado" class="w-full p-3 bg-gray-100 border rounded text-gray-500" disabled placeholder="Selecione na lista ←">
+                        <label class="text-sm font-medium text-gray-700">Cliente</label>
+                        <input type="text" id="cliente-selecionado" class="w-full p-3 bg-gray-100 border rounded" disabled placeholder="Selecione ←">
                         <input type="hidden" id="id-cliente-selecionado">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
+                        <label class="text-sm font-medium text-gray-700">Valor (R$)</label>
                         <input type="text" id="valor-produto" class="w-full p-3 border rounded bg-gray-50">
                     </div>
                 </div>
-
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Produto</label>
-                    <select id="select-produto" class="w-full p-3 border rounded focus:ring-2 focus:ring-green-500" onchange="atualizarPreco()">
-                        <option value="">Selecione um produto...</option>
-                    </select>
+                    <label class="text-sm font-medium text-gray-700">Produto</label>
+                    <select id="select-produto" class="w-full p-3 border rounded" onchange="atualizarPreco()"><option value="">Selecione...</option></select>
                 </div>
-
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Chave PIX (Copia e Cola)</label>
-                    <textarea id="pix-code" rows="3" class="w-full p-3 border rounded focus:ring-2 focus:ring-green-500 font-mono text-xs" placeholder="Cole o código PIX grandão aqui..."></textarea>
+                    <label class="text-sm font-medium text-gray-700">Chave PIX (Copia e Cola)</label>
+                    <textarea id="pix-code" rows="3" class="w-full p-3 border rounded font-mono text-xs"></textarea>
                 </div>
-
-                <button onclick="lancarPedido()" id="btn-lancar" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition-colors">
-                    + Lançar Cobrança
-                </button>
+                <button onclick="lancarPedido()" id="btn-lancar" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg">+ Lançar</button>
                 <p id="msg-status" class="mt-3 text-center text-sm font-medium"></p>
             </div>
         </div>
@@ -69,83 +60,205 @@
         <div class="bg-white rounded-xl shadow overflow-hidden">
             <div class="p-6 border-b border-gray-100">
                 <h2 class="text-blue-600 font-bold text-lg">Gerenciar Vendas Pendentes</h2>
-                <p class="text-sm text-gray-500">Aqui você pode atualizar o código Pix de quem ainda não pagou.</p>
             </div>
-            
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="p-4 text-sm text-gray-600">ID</th>
-                            <th class="p-4 text-sm text-gray-600">Cliente (ID/Email)</th>
+                            <th class="p-4 text-sm text-gray-600">Cliente</th>
                             <th class="p-4 text-sm text-gray-600">Produto</th>
                             <th class="p-4 text-sm text-gray-600">Valor</th>
                             <th class="p-4 text-sm text-gray-600">Pix Atual</th>
                             <th class="p-4 text-sm text-gray-600">Ação</th>
                         </tr>
                     </thead>
-                    <tbody id="tabela-vendas" class="divide-y divide-gray-100">
-                        <tr><td colspan="6" class="p-4 text-center text-gray-400">Carregando vendas...</td></tr>
-                    </tbody>
+                    <tbody id="tabela-vendas" class="divide-y divide-gray-100"></tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
     <script>
-        // SUAS CHAVES REAIS AQUI
-        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
-        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x' // Essa chave é pública, ok usar no front
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+        // Usei a chave EXATA do seu print
+        const SUPABASE_URL = 'https://eedegpggzooimuvytmyt.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'; //
 
-        // --- 1. SEGURANÇA ---
+        // Inicialização com tratamento de erro
+        let _supabase;
+        try {
+            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) {
+            mostrarErro("Erro crítico ao iniciar Supabase: " + e.message);
+        }
+
+        function mostrarErro(msg) {
+            const statusDiv = document.getElementById('status-screen');
+            const msgP = document.getElementById('status-msg');
+            const h2 = statusDiv.querySelector('h2');
+            
+            // Garante que a tela de erro apareça
+            statusDiv.classList.remove('hidden');
+            document.getElementById('painel-principal').classList.add('hidden');
+            
+            h2.innerText = "⚠️ Erro Encontrado";
+            h2.className = "text-xl font-bold text-red-600 mb-2";
+            msgP.innerHTML = msg;
+            statusDiv.querySelector('button').classList.remove('hidden');
+        }
+
         async function verificarAdmin() {
-            const { data: { user } } = await _supabase.auth.getUser();
+            try {
+                // Tenta pegar o usuário
+                const { data: { user }, error } = await _supabase.auth.getUser();
 
-            if (!user) {
-                window.location.href = "/minha-conta"; 
-                return;
-            }
+                if (error) throw error;
 
-            // Verifica na tabela 'admins'
-            const { data: adminList } = await _supabase
-                .from('admins')
-                .select('*')
-                .eq('email', user.email);
+                if (!user) {
+                    window.location.href = "/minha-conta"; // Redireciona se não estiver logado
+                    return;
+                }
 
-            if (!adminList || adminList.length === 0) {
-                alert("ACESSO NEGADO.");
-                window.location.href = "/dashboard"; 
-            } else {
-                document.getElementById('corpo-pagina').classList.remove('hidden');
-                document.getElementById('admin-email').innerText = user.email;
-                iniciarPainel();
+                // Verifica na tabela admins
+                const { data: adminList, error: errorAdmin } = await _supabase
+                    .from('admins')
+                    .select('*')
+                    .eq('email', user.email);
+
+                if (errorAdmin) throw errorAdmin;
+
+                if (!adminList || adminList.length === 0) {
+                    mostrarErro(`ACESSO NEGADO.<br>O usuário <b>${user.email}</b> não é administrador.`);
+                } else {
+                    // SUCESSO! Mostra o painel e esconde o loading
+                    document.getElementById('status-screen').classList.add('hidden');
+                    document.getElementById('painel-principal').classList.remove('hidden');
+                    document.getElementById('admin-email').innerText = user.email;
+                    iniciarPainel();
+                }
+
+            } catch (err) {
+                console.error(err);
+                mostrarErro("Erro Técnico: " + err.message + "<br><br>Verifique o console (F12) para mais detalhes.");
             }
         }
-        verificarAdmin();
 
         async function iniciarPainel() {
-            carregarClientes();
-            carregarProdutos();
-            carregarVendasPendentes(); // Nova função
+            // Carrega tudo em paralelo
+            await Promise.all([carregarClientes(), carregarProdutos(), carregarVendasPendentes()]);
         }
 
-        // --- 2. FUNÇÕES DE CRIAÇÃO (SEU CÓDIGO ORIGINAL) ---
+        // --- FUNÇÕES DE CARREGAMENTO ---
         async function carregarClientes() {
             const { data } = await _supabase.from('clientes').select('*').order('nome', { ascending: true });
             const lista = document.getElementById('lista-clientes');
             lista.innerHTML = "";
-
             if (data) {
                 data.forEach(cliente => {
-                    const nomeCompleto = `${cliente.nome} ${cliente.sobrenome}`;
-                    const item = document.createElement('div');
-                    item.className = "p-3 border rounded cursor-pointer hover:bg-green-50 transition-colors flex justify-between items-center cliente-item";
-                    item.innerHTML = `<span class="font-medium capitalize text-sm">${nomeCompleto}</span> <span class="text-xs text-gray-400">Selecionar</span>`;
-                    
-                    item.onclick = () => {
-                        document.querySelectorAll('.cliente-item').forEach(d => d.classList.remove('bg-green-100', 'border-green-500'));
-                        item.classList.add('bg-green-100', 'border-green-500');
-                        document.getElementById('cliente-selecionado').value = nomeCompleto; 
-                        document.getElementById('id-cliente-selecionado
+                    const nome = `${cliente.nome} ${cliente.sobrenome}`;
+                    const d = document.createElement('div');
+                    d.className = "p-3 border rounded cursor-pointer hover:bg-green-50 flex justify-between items-center cliente-item";
+                    d.innerHTML = `<span class="font-medium capitalize text-sm">${nome}</span> <span class="text-xs text-gray-400">Selecionar</span>`;
+                    d.onclick = () => {
+                        document.querySelectorAll('.cliente-item').forEach(x => x.classList.remove('bg-green-100', 'border-green-500'));
+                        d.classList.add('bg-green-100', 'border-green-500');
+                        document.getElementById('cliente-selecionado').value = nome; 
+                        document.getElementById('id-cliente-selecionado').value = cliente.id_auth; 
+                    };
+                    lista.appendChild(d);
+                });
+            }
+        }
+
+        async function carregarProdutos() {
+            const { data } = await _supabase.from('produtos').select('*');
+            const select = document.getElementById('select-produto');
+            if (data) {
+                data.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.nome; opt.dataset.preco = p.preco; opt.innerText = `${p.nome} - R$ ${p.preco}`;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function atualizarPreco() {
+            const s = document.getElementById('select-produto');
+            document.getElementById('valor-produto').value = s.options[s.selectedIndex].dataset.preco || "";
+        }
+
+        async function lancarPedido() {
+            const btn = document.getElementById('btn-lancar');
+            const msg = document.getElementById('msg-status');
+            const cliente = document.getElementById('id-cliente-selecionado').value;
+            const prod = document.getElementById('select-produto').value;
+            const val = document.getElementById('valor-produto').value;
+            const pix = document.getElementById('pix-code').value;
+
+            if (!cliente || !prod || !val) { alert("Preencha tudo!"); return; }
+
+            btn.innerText = "Salvando..."; btn.disabled = true;
+            const { error } = await _supabase.from('vendas').insert({
+                email_cliente: cliente, produto: prod, valor: val, status: 'Pendente', pix_copia_cola: pix
+            });
+
+            if (error) {
+                msg.innerText = "Erro: " + error.message; msg.style.color = "red";
+            } else {
+                msg.innerText = "Sucesso!"; msg.style.color = "green";
+                document.getElementById('pix-code').value = "";
+                carregarVendasPendentes();
+            }
+            btn.innerText = "+ Lançar"; btn.disabled = false;
+        }
+
+        async function carregarVendasPendentes() {
+            const tb = document.getElementById('tabela-vendas');
+            const { data: vendas, error } = await _supabase.from('vendas').select('*').eq('status', 'Pendente').order('id', { ascending: false });
+            
+            if (error) {
+                console.error(error); // Loga erro silencioso no console se houver
+                return;
+            }
+
+            if (!vendas || !vendas.length) {
+                tb.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">Nenhuma venda pendente.</td></tr>`;
+                return;
+            }
+
+            tb.innerHTML = vendas.map(v => `
+                <tr class="hover:bg-gray-50 border-b border-gray-100">
+                    <td class="p-4 font-bold text-gray-600">#${v.id}</td>
+                    <td class="p-4 text-sm">${v.email_cliente}</td>
+                    <td class="p-4 text-sm">${v.produto}</td>
+                    <td class="p-4 text-green-600 font-bold">R$ ${v.valor}</td>
+                    <td class="p-4 text-xs font-mono text-gray-500">${v.pix_copia_cola ? v.pix_copia_cola.substring(0,10)+'...' : 'Vazio'}</td>
+                    <td class="p-4"><button onclick="trocarPix(${v.id})" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">✏️ Pix</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function trocarPix(id) {
+            const novo = prompt("Novo Pix Copia e Cola:");
+            if (novo && novo.length > 5) {
+                await _supabase.from('vendas').update({ pix_copia_cola: novo }).eq('id', id);
+                alert("Atualizado!");
+                carregarVendasPendentes();
+            }
+        }
+
+        function filtrarClientes() {
+            const t = document.getElementById('busca-cliente').value.toLowerCase();
+            document.querySelectorAll('.cliente-item').forEach(i => i.style.display = i.innerText.toLowerCase().includes(t) ? "flex" : "none");
+        }
+
+        async function sair() {
+            await _supabase.auth.signOut();
+            window.location.href = "/minha-conta";
+        }
+
+        // Inicia
+        verificarAdmin();
+    </script>
+</body>
+</html>
