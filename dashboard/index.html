@@ -141,26 +141,23 @@
                 const user = data.user;
                 document.getElementById('email-usuario').innerText = user.email;
 
-                // 2. Destrava a tela (IMPORTANTE: Faz isso antes de carregar dados para não travar visualmente)
                 document.getElementById('loading-screen').classList.add('hidden'); // Some com o loader
 
-                // 3. Carrega dados em paralelo (Se um falhar, o outro funciona)
-                // Nota: Usamos user.email para buscar vendas pois é assim que está no seu banco
+                // 2. Carrega vendas usando o ID DO USUÁRIO
+                // (O admin está salvando o ID '754adb...' na coluna email_cliente)
                 await Promise.allSettled([
-                    carregarVendas(user.email), 
+                    carregarVendas(user.id), 
                     carregarDadosCliente(user.id)
                 ]);
 
             } catch (err) {
                 console.error("Erro fatal no dashboard:", err);
-                // Se der erro grave, mostra na tela para debug
                 document.getElementById('error-message').innerText = "Erro: " + err.message;
                 document.getElementById('error-message').classList.remove('hidden');
                 document.getElementById('btn-force-retry').classList.remove('hidden');
             }
         }
 
-        // Executa
         initDashboard();
 
         // --- FUNÇÕES DE NAVEGAÇÃO ---
@@ -174,14 +171,14 @@
         }
 
         // --- CARREGAR VENDAS ---
-        async function carregarVendas(userEmail) {
+        async function carregarVendas(userId) {
             const tbody = document.getElementById('lista-vendas');
             
-            // Busca vendas onde o email_cliente é igual ao email do usuário logado
+            // AQUI ESTÁ A CORREÇÃO: Buscamos pelo userId (o código longo)
             const { data, error } = await _supabase
                 .from('vendas')
                 .select('*')
-                .eq('email_cliente', userEmail) // <-- CORREÇÃO: Busca por EMAIL
+                .eq('email_cliente', userId) 
                 .order('id', { ascending: false });
 
             if (error) {
@@ -190,11 +187,12 @@
             }
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado para este e-mail.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`;
             } else {
                 tbody.innerHTML = "";
                 data.forEach(venda => {
                     let statusClass = "bg-yellow-100 text-yellow-800";
+                    // Garante que o botão fique em uma linha só no celular (whitespace-nowrap)
                     let acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-700 shadow-sm whitespace-nowrap">Pagar <i data-lucide="arrow-right" class="w-3 h-3"></i></a>`;
 
                     if(venda.status === 'Pago' || venda.status === 'Aprovado') {
@@ -218,12 +216,11 @@
 
         // --- CARREGAR DADOS PESSOAIS ---
         async function carregarDadosCliente(userId) {
-            // Tenta buscar dados. Se não existir (null), não quebra o site.
             const { data, error } = await _supabase
                 .from('clientes')
                 .select('*')
                 .eq('id_auth', userId)
-                .maybeSingle(); // <-- IMPORTANTE: maybeSingle não dá erro se não achar nada
+                .maybeSingle(); 
 
             if (data) {
                 const nome = data.nome || "Visitante";
@@ -232,7 +229,6 @@
                 document.getElementById('view-sobrenome').innerText = data.sobrenome || "-";
                 document.getElementById('view-cpf').innerText = data.cpf || "-";
             } else {
-                // Se não tiver cadastro ainda
                 document.getElementById('nome-usuario').innerText = "Novo Usuário";
             }
         }
