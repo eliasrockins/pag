@@ -42,17 +42,17 @@
             </a>
 
             <div class="text-center">
-                <h1 class="text-3xl font-bold text-slate-900">Finalizar Pagamento</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Finalizar Pagamento</h1>
             </div>
 
-            <div class="bg-slate-50 p-8 rounded-2xl space-y-6 border border-dashed border-slate-200">
-                <div class="flex justify-between items-center text-lg">
+            <div class="bg-slate-50 p-6 md:p-8 rounded-2xl space-y-6 border border-dashed border-slate-200">
+                <div class="flex justify-between items-center text-base md:text-lg">
                     <span class="text-slate-500">Produto:</span>
                     <span class="font-bold text-slate-900" id="nome-produto">...</span>
                 </div>
                 <div class="flex justify-between items-center border-t border-slate-200 pt-4">
                     <span class="text-slate-500">Total a pagar:</span>
-                    <span class="text-3xl font-black text-green-600" id="valor-produto">R$ ...</span>
+                    <span class="text-2xl md:text-3xl font-black text-green-600" id="valor-produto">R$ ...</span>
                 </div>
             </div>
 
@@ -61,8 +61,8 @@
                     <textarea id="pix-texto" readonly class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono h-24 resize-none focus:outline-none text-gray-500"></textarea>
                 </div>
 
-                <button onclick="copiarPix()" id="btn-copiar" class="w-full h-16 text-xl font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-200 rounded-xl transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="copy" class="w-6 h-6"></i> Copiar Código Pix
+                <button onclick="copiarPix()" id="btn-copiar" class="w-full py-3 px-4 text-base font-semibold text-white bg-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-200 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="copy" class="w-5 h-5"></i> Copiar Código Pix
                 </button>
 
                 <div class="flex items-center justify-center gap-2 py-2 w-3/4 mx-auto rounded-lg border bg-slate-50 border-slate-100">
@@ -169,12 +169,15 @@
             const btn = document.getElementById('btn-copiar');
             const originalHTML = btn.innerHTML;
             
-            btn.style.backgroundColor = "black";
-            btn.innerHTML = `<i data-lucide="check" class="w-6 h-6"></i> Copiado!`;
+            // Ajuste no feedback visual do botão menor
+            btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600', 'shadow-emerald-200');
+            btn.classList.add('bg-slate-800', 'shadow-none');
+            btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> Copiado!`;
             lucide.createIcons();
 
             setTimeout(() => {
-                btn.style.backgroundColor = "";
+                btn.classList.remove('bg-slate-800', 'shadow-none');
+                btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600', 'shadow-emerald-200');
                 btn.innerHTML = originalHTML;
                 lucide.createIcons();
             }, 3000);
@@ -196,25 +199,25 @@
                 .subscribe();
         }
 
-        // --- FUNÇÃO NOVA: TIMER DE 15 MINUTOS ---
+        // TIMER DE 15 MINUTOS
         function iniciarContagemRegressiva() {
             let tempoRestante = 15 * 60; // 15 minutos em segundos
             const display = document.getElementById('timer-texto');
 
-            const intervalo = setInterval(() => {
+            // Limpa intervalo anterior se houver (evita bugs se recarregar a função)
+            if (window.meuTimerPagamento) clearInterval(window.meuTimerPagamento);
+
+            window.meuTimerPagamento = setInterval(() => {
                 const minutos = Math.floor(tempoRestante / 60);
                 const segundos = tempoRestante % 60;
 
-                // Formatação 00:00 (adiciona o zero na frente se for menor que 10)
                 const minFormatado = minutos < 10 ? `0${minutos}` : minutos;
                 const segFormatado = segundos < 10 ? `0${segundos}` : segundos;
 
                 display.innerText = `Expira em: ${minFormatado}:${segFormatado}`;
 
-                // Se o tempo acabar (chegar a 0)
                 if (--tempoRestante < 0) {
-                    clearInterval(intervalo);
-                    // Esconde a tela de pagamento e mostra a de expirado
+                    clearInterval(window.meuTimerPagamento);
                     document.getElementById('tela-checkout').classList.add('hidden');
                     document.getElementById('tela-expirado').classList.remove('hidden');
                     lucide.createIcons();
