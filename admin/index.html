@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - Área Restrita</title>
+    <title>Painel Admin - Controle Total</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>body { background-color: #f3f4f6; font-family: sans-serif; }</style>
 </head>
 <body class="p-6 hidden" id="corpo-pagina"> 
 
-    <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
+    <div class="max-w-7xl mx-auto space-y-8">
+        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
             <h1 class="text-2xl font-bold text-gray-800">Painel Administrativo</h1>
-            <div class="text-sm text-gray-500">
-                Logado como: <span id="admin-email" class="font-bold text-gray-800">...</span>
-                <button onclick="sair()" class="ml-4 text-red-500 hover:underline">Sair</button>
+            <div class="text-sm text-gray-500 flex items-center gap-4">
+                <span>Logado: <span id="admin-email" class="font-bold text-gray-800">...</span></span>
+                <button onclick="window.location.reload()" class="text-blue-600 hover:underline">🔄 Atualizar Tela</button>
+                <button onclick="sair()" class="text-red-500 hover:underline border border-red-200 px-3 py-1 rounded">Sair</button>
             </div>
         </div>
 
@@ -32,12 +33,18 @@
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow md:col-span-2">
-                <h2 class="text-green-600 font-bold mb-6">2. Detalhes do Lançamento</h2>
+                <h2 class="text-green-600 font-bold mb-6">2. Lançar Nova Cobrança</h2>
                 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cliente Selecionado</label>
-                    <input type="text" id="cliente-selecionado" class="w-full p-3 bg-gray-100 border rounded text-gray-500" disabled placeholder="Clique em um cliente na lista ao lado">
-                    <input type="hidden" id="id-cliente-selecionado">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                        <input type="text" id="cliente-selecionado" class="w-full p-3 bg-gray-100 border rounded text-gray-500" disabled placeholder="Selecione na lista ←">
+                        <input type="hidden" id="id-cliente-selecionado">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
+                        <input type="text" id="valor-produto" class="w-full p-3 border rounded bg-gray-50">
+                    </div>
                 </div>
 
                 <div class="mb-4">
@@ -47,30 +54,52 @@
                     </select>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
-                    <input type="text" id="valor-produto" class="w-full p-3 border rounded bg-gray-50">
-                </div>
-
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Chave PIX Copia e Cola</label>
-                    <textarea id="pix-code" rows="4" class="w-full p-3 border rounded focus:ring-2 focus:ring-green-500" placeholder="Cole o código PIX grandão aqui..."></textarea>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Chave PIX (Copia e Cola)</label>
+                    <textarea id="pix-code" rows="3" class="w-full p-3 border rounded focus:ring-2 focus:ring-green-500 font-mono text-xs" placeholder="Cole o código PIX grandão aqui..."></textarea>
                 </div>
 
                 <button onclick="lancarPedido()" id="btn-lancar" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition-colors">
-                    + Lançar para o Cliente
+                    + Lançar Cobrança
                 </button>
                 <p id="msg-status" class="mt-3 text-center text-sm font-medium"></p>
             </div>
         </div>
+
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-blue-600 font-bold text-lg">Gerenciar Vendas Pendentes</h2>
+                <p class="text-sm text-gray-500">Aqui você pode atualizar o código Pix de quem ainda não pagou.</p>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-4 text-sm text-gray-600">ID</th>
+                            <th class="p-4 text-sm text-gray-600">Cliente (ID/Email)</th>
+                            <th class="p-4 text-sm text-gray-600">Produto</th>
+                            <th class="p-4 text-sm text-gray-600">Valor</th>
+                            <th class="p-4 text-sm text-gray-600">Pix Atual</th>
+                            <th class="p-4 text-sm text-gray-600">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-vendas" class="divide-y divide-gray-100">
+                        <tr><td colspan="6" class="p-4 text-center text-gray-400">Carregando vendas...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // SUAS CHAVES REAIS AQUI
         const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
-        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
+        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x' // Essa chave é pública, ok usar no front
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
-        // --- SEGURANÇA: VERIFICA SE É ADMIN ---
+        // --- 1. SEGURANÇA ---
         async function verificarAdmin() {
             const { data: { user } } = await _supabase.auth.getUser();
 
@@ -79,14 +108,14 @@
                 return;
             }
 
-            // Verifica se o email está na tabela 'admins'
+            // Verifica na tabela 'admins'
             const { data: adminList } = await _supabase
                 .from('admins')
                 .select('*')
                 .eq('email', user.email);
 
             if (!adminList || adminList.length === 0) {
-                alert("ACESSO NEGADO: Você não é administrador.");
+                alert("ACESSO NEGADO.");
                 window.location.href = "/dashboard"; 
             } else {
                 document.getElementById('corpo-pagina').classList.remove('hidden');
@@ -99,8 +128,10 @@
         async function iniciarPainel() {
             carregarClientes();
             carregarProdutos();
+            carregarVendasPendentes(); // Nova função
         }
 
+        // --- 2. FUNÇÕES DE CRIAÇÃO (SEU CÓDIGO ORIGINAL) ---
         async function carregarClientes() {
             const { data } = await _supabase.from('clientes').select('*').order('nome', { ascending: true });
             const lista = document.getElementById('lista-clientes');
@@ -111,85 +142,10 @@
                     const nomeCompleto = `${cliente.nome} ${cliente.sobrenome}`;
                     const item = document.createElement('div');
                     item.className = "p-3 border rounded cursor-pointer hover:bg-green-50 transition-colors flex justify-between items-center cliente-item";
-                    item.innerHTML = `<span class="font-medium capitalize">${nomeCompleto}</span> <span class="text-xs text-gray-400">Selecionar</span>`;
+                    item.innerHTML = `<span class="font-medium capitalize text-sm">${nomeCompleto}</span> <span class="text-xs text-gray-400">Selecionar</span>`;
                     
                     item.onclick = () => {
                         document.querySelectorAll('.cliente-item').forEach(d => d.classList.remove('bg-green-100', 'border-green-500'));
                         item.classList.add('bg-green-100', 'border-green-500');
                         document.getElementById('cliente-selecionado').value = nomeCompleto; 
-                        document.getElementById('id-cliente-selecionado').value = cliente.id_auth; 
-                    };
-                    lista.appendChild(item);
-                });
-            }
-        }
-
-        async function carregarProdutos() {
-            const { data } = await _supabase.from('produtos').select('*');
-            const select = document.getElementById('select-produto');
-            if (data) {
-                data.forEach(prod => {
-                    const option = document.createElement('option');
-                    option.value = prod.nome;
-                    option.dataset.preco = prod.preco;
-                    option.innerText = `${prod.nome} - R$ ${prod.preco}`;
-                    select.appendChild(option);
-                });
-            }
-        }
-
-        function atualizarPreco() {
-            const select = document.getElementById('select-produto');
-            const preco = select.options[select.selectedIndex].dataset.preco;
-            document.getElementById('valor-produto').value = preco || "";
-        }
-
-        async function lancarPedido() {
-            const btn = document.getElementById('btn-lancar');
-            const msg = document.getElementById('msg-status');
-            
-            const idAuthCliente = document.getElementById('id-cliente-selecionado').value;
-            const produto = document.getElementById('select-produto').value;
-            const valor = document.getElementById('valor-produto').value;
-            const pix = document.getElementById('pix-code').value;
-
-            if (!idAuthCliente || !produto || !valor) {
-                alert("Selecione um cliente e um produto!");
-                return;
-            }
-
-            btn.innerText = "Lançando..."; btn.disabled = true;
-
-            const { error } = await _supabase.from('vendas').insert({
-                email_cliente: idAuthCliente, 
-                produto: produto,
-                valor: valor,
-                status: 'Pendente',
-                pix_copia_cola: pix
-            });
-
-            if (error) {
-                msg.innerText = "Erro: " + error.message; msg.style.color = "red";
-            } else {
-                msg.innerText = "Sucesso! Pedido enviado."; msg.style.color = "green";
-                document.getElementById('pix-code').value = "";
-            }
-            btn.innerText = "+ Lançar para o Cliente"; btn.disabled = false;
-        }
-
-        function filtrarClientes() {
-            const termo = document.getElementById('busca-cliente').value.toLowerCase();
-            const itens = document.querySelectorAll('.cliente-item');
-            itens.forEach(item => {
-                const texto = item.innerText.toLowerCase();
-                item.style.display = texto.includes(termo) ? "flex" : "none";
-            });
-        }
-
-        async function sair() {
-            await _supabase.auth.signOut();
-            window.location.href = "/minha-conta";
-        }
-    </script>
-</body>
-</html>
+                        document.getElementById('id-cliente-selecionado
