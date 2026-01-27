@@ -13,6 +13,9 @@
         .hidden-section { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* CORREÇÃO PARA CELULAR: Scroll suave na tabela */
+        .table-scroll { -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body class="text-gray-800">
@@ -79,21 +82,26 @@
 
             <div id="sec-pedidos" class="hidden-section fade-in">
                 <h2 class="text-xl font-bold mb-4">Histórico de Pedidos</h2>
-                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-xs">
-                            <tr>
-                                <th class="px-6 py-4 font-semibold">Produto</th>
-                                <th class="px-6 py-4 font-semibold">Valor</th>
-                                <th class="px-6 py-4 font-semibold">Status</th>
-                                <th class="px-6 py-4 font-semibold text-right">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lista-vendas" class="divide-y divide-gray-100">
-                            <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Carregando seus pedidos...</td></tr>
-                        </tbody>
-                    </table>
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto table-scroll">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4 font-semibold">Produto</th>
+                                    <th class="px-6 py-4 font-semibold">Valor</th>
+                                    <th class="px-6 py-4 font-semibold">Status</th>
+                                    <th class="px-6 py-4 font-semibold text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-vendas" class="divide-y divide-gray-100">
+                                <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Carregando seus pedidos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                <p class="text-xs text-gray-400 mt-2 md:hidden text-center flex items-center justify-center gap-1">
+                    <i data-lucide="arrow-left-right" class="w-3 h-3"></i> Arraste para o lado para ver mais
+                </p>
             </div>
 
             <div id="sec-dados" class="hidden-section fade-in">
@@ -101,104 +109,4 @@
                 <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm max-w-2xl">
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Nome</label><div id="view-nome" class="p-2 bg-gray-50 rounded border mt-1">...</div></div>
-                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1">...</div></div>
-                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CPF</label><div id="view-cpf" class="p-2 bg-gray-50 rounded border mt-1">...</div></div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        lucide.createIcons();
-        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
-        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
-
-        async function checkAuth() {
-            const { data: { user } } = await _supabase.auth.getUser()
-            if (!user) {
-                window.location.href = "/minha-conta"
-            } else {
-                document.getElementById('loading-screen').classList.add('hidden')
-                document.getElementById('email-usuario').innerText = user.email
-                
-                // AQUI ESTÁ A CORREÇÃO: Passamos o ID, não o email
-                carregarVendas(user.id) 
-                carregarDadosCliente(user.id)
-            }
-        }
-        checkAuth();
-
-        function mudarAba(aba) {
-            ['painel', 'pedidos', 'dados'].forEach(sec => {
-                document.getElementById('sec-' + sec).classList.add('hidden-section')
-                document.getElementById('btn-' + sec).classList.remove('active-tab')
-            })
-            document.getElementById('sec-' + aba).classList.remove('hidden-section')
-            document.getElementById('btn-' + aba).classList.add('active-tab')
-        }
-
-        async function carregarVendas(userId) {
-            const tbody = document.getElementById('lista-vendas')
-            
-            // BUSCA PELO ID (userId) NA COLUNA email_cliente
-            const { data, error } = await _supabase
-                .from('vendas')
-                .select('*')
-                .eq('email_cliente', userId) // <-- PULO DO GATO AQUI
-
-            if (error) {
-                console.error(error)
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-red-500">Erro ao buscar pedidos.</td></tr>`
-                return
-            }
-
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`
-            } else {
-                tbody.innerHTML = "" 
-                data.forEach(venda => {
-                    let statusColor = "bg-gray-100 text-gray-800"
-                    if(venda.status === 'Pago' || venda.status === 'Aprovado') statusColor = "bg-green-100 text-green-800"
-                    if(venda.status === 'Pendente') statusColor = "bg-yellow-100 text-yellow-800"
-
-                    // BOTÃO DE PAGAR
-                    let acao = "";
-                    if (venda.status === 'Pendente') {
-                        acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-700 transition-colors shadow-sm">Pagar Agora <i data-lucide="arrow-right" class="w-3 h-3"></i></a>`;
-                    } else {
-                        acao = `<span class="text-green-600 font-bold text-xs flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
-                    }
-
-                    const linha = `
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-gray-900">${venda.produto || 'Produto'}</td>
-                            <td class="px-6 py-4">R$ ${venda.valor}</td>
-                            <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusColor}">${venda.status}</span></td>
-                            <td class="px-6 py-4 text-right">${acao}</td>
-                        </tr>
-                    `
-                    tbody.innerHTML += linha
-                });
-                lucide.createIcons();
-            }
-        }
-
-        async function carregarDadosCliente(userId) {
-            const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).single()
-            if (data) {
-                document.getElementById('nome-usuario').innerText = data.nome || "Usuário"
-                document.getElementById('view-nome').innerText = data.nome
-                document.getElementById('view-sobrenome').innerText = data.sobrenome
-                document.getElementById('view-cpf').innerText = data.cpf
-            }
-        }
-
-        async function sair() {
-            await _supabase.auth.signOut()
-            window.location.href = "/"
-        }
-    </script>
-</body>
-</html>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1">...
