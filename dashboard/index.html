@@ -8,21 +8,15 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* background-color removido daqui para usar gradiente no body */
         body { font-family: 'Inter', sans-serif; }
         .active-tab { background-color: #e5e7eb; color: #000; font-weight: 600; border-right: 4px solid #00a38c; }
         .hidden-section { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        /* Estilo simples para o input de arquivo */
+        
         input[type="file"]::file-selector-button {
-            margin-right: 10px;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #e5e7eb;
-            cursor: pointer;
-            font-size: 0.8rem;
+            margin-right: 10px; padding: 5px 10px; border: none; border-radius: 5px;
+            background-color: #e5e7eb; cursor: pointer; font-size: 0.8rem;
         }
     </style>
 </head>
@@ -45,6 +39,7 @@
                 </div>
                 <span class="font-bold text-lg tracking-tight">Área do Cliente</span>
             </div>
+
             <nav class="p-4 space-y-2">
                 <button onclick="mudarAba('painel')" id="btn-painel" class="w-full flex items-center gap-3 px-4 py-3 text-sm rounded-lg hover:bg-gray-100 transition-colors active-tab">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Início
@@ -73,7 +68,6 @@
             </div>
 
             <div id="sec-painel" class="fade-in">
-                
                 <div class="w-full bg-[#F5DE3E] rounded-xl mb-6 flex flex-col-reverse md:flex-row items-center overflow-hidden shadow-sm">
                     <div class="flex-shrink-0 pt-4 px-4 md:pl-6">
                         <img src="../assets/banner-promo.png" alt="Promoção" class="h-48 md:h-56 object-contain -mb-1">
@@ -89,7 +83,6 @@
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-3">
-                    
                     <div class="bg-blue-50/90 backdrop-blur-sm p-6 rounded-xl border border-blue-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('reembolso')">
                         <div class="flex items-center gap-4">
                             <div class="p-3 bg-blue-200 text-blue-700 rounded-lg">
@@ -99,7 +92,6 @@
                         </div>
                         <i data-lucide="chevron-right" class="w-5 h-5 text-blue-300 group-hover:text-blue-600"></i>
                     </div>
-
                     <div class="bg-yellow-50/90 backdrop-blur-sm p-6 rounded-xl border border-yellow-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
                         <div class="flex items-center gap-4">
                             <div class="p-3 bg-yellow-200 text-yellow-800 rounded-lg">
@@ -109,7 +101,6 @@
                         </div>
                         <i data-lucide="chevron-right" class="w-5 h-5 text-yellow-300 group-hover:text-yellow-600"></i>
                     </div>
-
                     <div class="bg-green-50/90 backdrop-blur-sm p-6 rounded-xl border border-green-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
                         <div class="flex items-center gap-4">
                             <div class="p-3 bg-green-200 text-green-700 rounded-lg">
@@ -119,47 +110,35 @@
                         </div>
                         <i data-lucide="chevron-right" class="w-5 h-5 text-green-300 group-hover:text-green-600"></i>
                     </div>
-
                 </div>
             </div>
 
             <div id="sec-reembolso" class="hidden-section fade-in">
-                
                 <button onclick="mudarAba('painel')" class="mb-4 flex items-center text-sm text-gray-500 hover:text-green-600 transition-colors">
                     <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Voltar ao início
                 </button>
-
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Reembolso</h2>
-
                 <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm max-w-3xl">
-                    <form onsubmit="event.preventDefault(); alert('Solicitação enviada com sucesso! Aguarde o contato.');" class="space-y-5">
-                        
+                    <form onsubmit="event.preventDefault(); alert('Solicitação enviada com sucesso!');" class="space-y-5">
                         <div>
                             <label class="block text-sm font-semibold text-gray-600 mb-1">Nome *</label>
-                            <input type="text" placeholder="Nome Completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-sm bg-white/80">
+                            <input type="text" placeholder="Nome Completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm bg-white/80">
                         </div>
-
                         <div>
                             <label class="block text-sm font-semibold text-gray-600 mb-1">CPF *</label>
-                            <input type="text" placeholder="000.000.000-00" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-sm bg-white/80">
+                            <input type="text" placeholder="000.000.000-00" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm bg-white/80">
                         </div>
-
                         <div>
                             <label class="block text-sm font-semibold text-gray-600 mb-1">Código de validação do reembolso *</label>
-                            <input type="text" placeholder='Para prosseguir com o reembolso, é necessário ter solicitado previamente o "Código de validação do reembolso" caso...' class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-sm truncate bg-white/80">
+                            <input type="text" placeholder='Para prosseguir com o reembolso...' class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm truncate bg-white/80">
                         </div>
-
                         <div>
                             <label class="block text-sm font-semibold text-gray-600 mb-1">Comprovante de Pagamento *</label>
                             <div class="flex items-center gap-2">
                                 <input type="file" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
                             </div>
                         </div>
-
-                        <button type="submit" class="w-full bg-[#48C774] hover:bg-[#3da862] text-white font-bold py-3 rounded-lg transition-colors shadow-sm mt-4">
-                            Enviar
-                        </button>
-
+                        <button type="submit" class="w-full bg-[#48C774] hover:bg-[#3da862] text-white font-bold py-3 rounded-lg transition-colors shadow-sm mt-4">Enviar</button>
                     </form>
                 </div>
             </div>
@@ -190,119 +169,4 @@
                 <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm max-w-2xl">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Nome</label><div id="view-nome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
-                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
-                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CPF</label><div id="view-cpf" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        lucide.createIcons();
-        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
-        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
-
-        async function initDashboard() {
-            try {
-                const { data, error } = await _supabase.auth.getUser();
-                
-                if (error || !data?.user) {
-                    window.location.href = "/minha-conta";
-                    return;
-                }
-
-                const user = data.user;
-                document.getElementById('email-usuario').innerText = user.email;
-                document.getElementById('loading-screen').classList.add('hidden'); 
-
-                await Promise.allSettled([
-                    carregarVendas(user.id), 
-                    carregarDadosCliente(user.id)
-                ]);
-
-            } catch (err) {
-                console.error("Erro dashboard:", err);
-                document.getElementById('error-message').innerText = "Erro: " + err.message;
-                document.getElementById('error-message').classList.remove('hidden');
-                document.getElementById('btn-force-retry').classList.remove('hidden');
-            }
-        }
-
-        initDashboard();
-
-        function mudarAba(aba) {
-            ['btn-painel', 'btn-pedidos', 'btn-dados'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.remove('active-tab');
-            });
-
-            ['painel', 'pedidos', 'dados', 'reembolso'].forEach(sec => {
-                const el = document.getElementById('sec-' + sec);
-                if(el) el.classList.add('hidden-section');
-            });
-
-            document.getElementById('sec-' + aba).classList.remove('hidden-section');
-            
-            const btn = document.getElementById('btn-' + aba);
-            if (btn) btn.classList.add('active-tab');
-        }
-
-        async function carregarVendas(userId) {
-            const tbody = document.getElementById('lista-vendas');
-            
-            const { data, error } = await _supabase
-                .from('vendas')
-                .select('*')
-                .eq('email_cliente', userId) 
-                .order('id', { ascending: false });
-
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`;
-            } else {
-                tbody.innerHTML = "";
-                data.forEach(venda => {
-                    let statusClass = "bg-yellow-100 text-yellow-800";
-                    let acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 shadow-sm w-full md:w-auto">Pagar</a>`;
-
-                    if(venda.status === 'Pago' || venda.status === 'Aprovado') {
-                        statusClass = "bg-green-100 text-green-800";
-                        acao = `<span class="text-green-600 font-bold text-xs flex justify-end items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
-                    }
-
-                    const row = `
-                        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50 align-top bg-white/80">
-                            <td class="px-3 py-3 md:px-6 md:py-4 text-gray-900 break-words max-w-[120px] md:max-w-none">
-                                <span class="font-medium text-xs md:text-sm block leading-tight">${venda.produto || 'Produto'}</span>
-                                <span class="md:hidden inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${statusClass}">${venda.status}</span>
-                            </td>
-                            <td class="px-2 py-3 md:px-6 md:py-4 text-xs md:text-sm font-bold text-gray-600 whitespace-nowrap">R$ ${venda.valor}</td>
-                            <td class="px-2 py-3 md:px-6 md:py-4 hidden md:table-cell text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusClass}">${venda.status}</span></td>
-                            <td class="px-3 py-3 md:px-6 md:py-4 text-right align-middle">${acao}</td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
-                });
-                lucide.createIcons();
-            }
-        }
-
-        async function carregarDadosCliente(userId) {
-            const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).maybeSingle(); 
-            if (data) {
-                const nome = data.nome || "Visitante";
-                document.getElementById('nome-usuario').innerText = nome;
-                document.getElementById('view-nome').innerText = nome;
-                document.getElementById('view-sobrenome').innerText = data.sobrenome || "-";
-                document.getElementById('view-cpf').innerText = data.cpf || "-";
-            }
-        }
-
-        async function sair() {
-            await _supabase.auth.signOut();
-            window.location.href = "/minha-conta";
-        }
-    </script>
-</body>
-</html>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1
