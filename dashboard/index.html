@@ -191,4 +191,118 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Nome</label><div id="view-nome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
-                        <div><label class="text-xs font-semibold text-gray-500 uppercase
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CPF</label><div id="view-cpf" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
+        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+        async function initDashboard() {
+            try {
+                const { data, error } = await _supabase.auth.getUser();
+                
+                if (error || !data?.user) {
+                    window.location.href = "/minha-conta";
+                    return;
+                }
+
+                const user = data.user;
+                document.getElementById('email-usuario').innerText = user.email;
+                document.getElementById('loading-screen').classList.add('hidden'); 
+
+                await Promise.allSettled([
+                    carregarVendas(user.id), 
+                    carregarDadosCliente(user.id)
+                ]);
+
+            } catch (err) {
+                console.error("Erro dashboard:", err);
+                document.getElementById('error-message').innerText = "Erro: " + err.message;
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('btn-force-retry').classList.remove('hidden');
+            }
+        }
+
+        initDashboard();
+
+        function mudarAba(aba) {
+            ['btn-painel', 'btn-pedidos', 'btn-dados'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.remove('active-tab');
+            });
+
+            ['painel', 'pedidos', 'dados', 'reembolso'].forEach(sec => {
+                const el = document.getElementById('sec-' + sec);
+                if(el) el.classList.add('hidden-section');
+            });
+
+            document.getElementById('sec-' + aba).classList.remove('hidden-section');
+            
+            const btn = document.getElementById('btn-' + aba);
+            if (btn) btn.classList.add('active-tab');
+        }
+
+        async function carregarVendas(userId) {
+            const tbody = document.getElementById('lista-vendas');
+            
+            const { data, error } = await _supabase
+                .from('vendas')
+                .select('*')
+                .eq('email_cliente', userId) 
+                .order('id', { ascending: false });
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`;
+            } else {
+                tbody.innerHTML = "";
+                data.forEach(venda => {
+                    let statusClass = "bg-yellow-100 text-yellow-800";
+                    let acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 shadow-sm w-full md:w-auto">Pagar</a>`;
+
+                    if(venda.status === 'Pago' || venda.status === 'Aprovado') {
+                        statusClass = "bg-green-100 text-green-800";
+                        acao = `<span class="text-green-600 font-bold text-xs flex justify-end items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
+                    }
+
+                    const row = `
+                        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50 align-top bg-white/80">
+                            <td class="px-3 py-3 md:px-6 md:py-4 text-gray-900 break-words max-w-[120px] md:max-w-none">
+                                <span class="font-medium text-xs md:text-sm block leading-tight">${venda.produto || 'Produto'}</span>
+                                <span class="md:hidden inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${statusClass}">${venda.status}</span>
+                            </td>
+                            <td class="px-2 py-3 md:px-6 md:py-4 text-xs md:text-sm font-bold text-gray-600 whitespace-nowrap">R$ ${venda.valor}</td>
+                            <td class="px-2 py-3 md:px-6 md:py-4 hidden md:table-cell text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusClass}">${venda.status}</span></td>
+                            <td class="px-3 py-3 md:px-6 md:py-4 text-right align-middle">${acao}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                lucide.createIcons();
+            }
+        }
+
+        async function carregarDadosCliente(userId) {
+            const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).maybeSingle(); 
+            if (data) {
+                const nome = data.nome || "Visitante";
+                document.getElementById('nome-usuario').innerText = nome;
+                document.getElementById('view-nome').innerText = nome;
+                document.getElementById('view-sobrenome').innerText = data.sobrenome || "-";
+                document.getElementById('view-cpf').innerText = data.cpf || "-";
+            }
+        }
+
+        async function sair() {
+            await _supabase.auth.signOut();
+            window.location.href = "/minha-conta";
+        }
+    </script>
+</body>
+</html>
