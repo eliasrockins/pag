@@ -13,9 +13,12 @@
         body { font-family: 'Inter', sans-serif; }
         .bg-amarelo { background-color: #F5DE3E; }
         .text-verde { color: #00a38c; }
-        .bg-verde-claro { background-color: #d1fae5; color: #00a38c; } /* Novo estilo para os ícones */
+        /* Círculo verde claro atrás dos ícones */
+        .icon-bg { background-color: #d1fae5; color: #0a5f53; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; }
+        
         .btn-gradiente { background: linear-gradient(135deg, #00a38c 0%, #008e7a 100%); transition: all 0.2s; }
         .btn-gradiente:hover { background: linear-gradient(135deg, #008e7a 0%, #006e5f 100%); }
+        
         .glass { background: rgba(255, 246, 208, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(0, 0, 0, 0.1); }
         .input-style { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.15); padding: 10px 10px 10px 40px; border-radius: 0.75rem; width: 100%; outline: none; transition: all 0.2s; }
         .input-style:focus { border-color: #00a38c; box-shadow: 0 0 0 2px rgba(0, 163, 140, 0.2); background: rgba(255, 255, 255, 1); }
@@ -24,69 +27,58 @@
         @keyframes highlight { 0% { background-color: #bbf7d0; } 100% { background-color: rgba(255, 255, 255, 0.7); } }
     </style>
 </head>
-<body class="bg-amarelo min-h-screen relative overflow-x-hidden">
+<body class="bg-amarelo min-h-screen overflow-x-hidden">
 
-    <div class="fixed inset-0 pointer-events-none">
+    <div class="fixed inset-0 pointer-events-none z-0">
         <div class="absolute inset-0 bg-gradient-to-b from-[#F5DE3E] via-[#FFF3A6] to-white"></div>
     </div>
 
-    <header class="absolute top-6 left-6 lg:top-8 lg:left-8 z-30">
-        <img src="../assets/logo.png" alt="Logo" class="w-28 lg:w-36">
+    <header class="absolute top-6 left-6 lg:top-10 lg:left-16 z-50">
+        <img src="../assets/logo.png" alt="Logo" class="w-32 lg:w-40">
     </header>
 
-    <div class="container mx-auto px-4 min-h-screen flex flex-col lg:flex-row items-center justify-between py-24 lg:py-0 gap-10 relative z-20">
+    <div class="relative z-10 min-h-screen flex flex-col lg:grid lg:grid-cols-2 container mx-auto px-6 lg:px-12 py-24 lg:py-0">
         
-        <aside class="hidden lg:flex flex-col justify-center w-full lg:w-1/2 xl:w-3/5 pr-10">
+        <div class="flex flex-col justify-center lg:pr-16 order-2 lg:order-1 mt-10 lg:mt-0">
             
-            <div class="mb-8 animate-in fade-in slide-in-from-left-10 duration-700">
-                <div class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1.5 backdrop-blur mb-3">
+            <div class="mb-6 flex flex-col items-start gap-3">
+                <div class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1 backdrop-blur shadow-sm">
                     <i data-lucide="shield-check" class="text-verde w-4 h-4"></i>
-                    <span class="text-xs font-bold text-black/80 uppercase tracking-wider">Sessão protegida</span>
+                    <span class="text-xs font-bold text-black/80 uppercase tracking-wide">Sessão protegida</span>
                 </div>
-                <h2 class="text-2xl font-bold text-black/70">
-                    Crie sua conta.
-                </h2>
+                <span class="text-xl font-bold text-gray-800 opacity-80">Crie sua conta.</span>
             </div>
 
-            <div class="space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-200">
-                
-                <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-slate-900">
-                    A forma mais fácil e segura de receber pagamentos
-                </h1>
+            <h1 class="text-3xl lg:text-5xl font-extrabold text-slate-900 leading-tight mb-6">
+                A forma mais fácil e segura de receber pagamentos
+            </h1>
 
-                <p class="text-lg text-slate-700 md:pr-12 leading-relaxed">
-                    Toda tecnologia e infraestrutura necessária para integrar a página de pagamento ao seu e‑commerce, site ou loja virtual com praticidade e segurança de dados de ponta a ponta. Seu negócio e clientes 100% protegidos durante toda a transação, da forma mais interativa possível.
-                </p>
+            <p class="text-base lg:text-lg text-slate-700 leading-relaxed mb-10 max-w-xl">
+                Toda tecnologia e infraestrutura necessária para integrar a página de pagamento ao seu e‑commerce, site ou loja virtual com praticidade e segurança de dados de ponta a ponta. Seu negócio e clientes 100% protegidos durante toda a transação.
+            </p>
 
-                <ul class="space-y-5 mt-8">
-                    <li class="flex items-center gap-4">
-                        <div class="bg-verde-claro p-3 rounded-full shrink-0 shadow-sm">
-                            <i data-lucide="shield-alert" class="w-6 h-6"></i>
-                        </div>
-                        <span class="font-semibold text-slate-800 text-lg">Evite fraudes e golpes</span>
-                    </li>
-                    <li class="flex items-center gap-4">
-                         <div class="bg-verde-claro p-3 rounded-full shrink-0 shadow-sm">
-                            <i data-lucide="lock-keyhole" class="w-6 h-6"></i>
-                        </div>
-                        <span class="font-semibold text-slate-800 text-lg">Compra Protegida</span>
-                    </li>
-                    <li class="flex items-start gap-4">
-                         <div class="bg-verde-claro p-3 rounded-full shrink-0 shadow-sm mt-1">
-                            <i data-lucide="headset" class="w-6 h-6"></i>
-                        </div>
-                        <span class="font-semibold text-slate-800 text-lg leading-tight">Apoio PagBank para mediar transações</span>
-                    </li>
-                </ul>
-
-                <div class="mt-12 hidden xl:block relative -mr-20 pointer-events-none">
-                    <img src="../assets/banner-login.png" alt="Ilustração de Segurança" class="w-[550px] h-auto object-contain drop-shadow-2xl animate-in fade-in slide-in-from-bottom-20 duration-1000 delay-500" onerror="this.style.display='none';"> 
-                    </div>
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="icon-bg"><i data-lucide="shield-alert" class="w-6 h-6"></i></div>
+                    <span class="font-bold text-slate-800 text-lg">Evite fraudes e golpes</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="icon-bg"><i data-lucide="lock-keyhole" class="w-6 h-6"></i></div>
+                    <span class="font-bold text-slate-800 text-lg">Compra Protegida</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="icon-bg"><i data-lucide="headset" class="w-6 h-6"></i></div>
+                    <span class="font-bold text-slate-800 text-lg">Apoio PagBank para mediar transações</span>
+                </div>
             </div>
-        </aside>
 
-        <main class="w-full max-w-md relative z-10 lg:w-1/2 xl:w-2/5 flex justify-center lg:justify-end">
-            <div class="glass rounded-3xl shadow-2xl overflow-hidden w-full">
+            <div class="mt-12 w-full max-w-lg">
+                <img src="../assets/banner-login.png" alt="Sistema Seguro" class="w-full h-auto object-contain drop-shadow-xl" onerror="this.style.display='none'">
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center lg:justify-end order-1 lg:order-2 mb-10 lg:mb-0">
+            <div class="glass rounded-3xl shadow-2xl overflow-hidden w-full max-w-md">
                 
                 <div class="px-8 pt-9 pb-4 text-center">
                     <h2 id="titulo-pagina" class="text-2xl font-bold text-black">Acessar sua conta</h2>
@@ -156,24 +148,19 @@
                 </div>
             </div>
             
-            <p class="mt-6 text-center text-xs text-black/50">
+            <p class="mt-6 text-center text-xs text-black/50 lg:hidden">
                 Ao continuar, você concorda com os termos e políticas.
             </p>
-        </main>
+        </div>
     </div>
 
     <script>
-        // Garante que os ícones carreguem no início
-        window.addEventListener('load', () => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
+        // Garante que os ícones carreguem
+        window.addEventListener('load', () => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
 
         const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co';
         const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x';
         let _supabase;
-        
         try { _supabase = supabase.createClient(supabaseUrl, supabaseKey); } catch (e) { console.error("Erro Supabase:", e); }
 
         let isLoginMode = true;
@@ -199,11 +186,9 @@
                 if(btn) btn.innerText = "Criar Conta";
                 if(toggleText) toggleText.innerText = "Já tem uma conta? Fazer login";
             }
-            // Recarrega ícones após a troca
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // --- LÓGICA DO CEP ---
         const cepInput = document.getElementById('cep');
         if (cepInput) {
             cepInput.addEventListener('input', function(e) {
@@ -228,7 +213,6 @@
             } catch (error) { console.error("Erro no CEP:", error); if(rua) rua.value = ""; }
         }
 
-        // --- FUNÇÃO DE AUTH ---
         window.handleAuth = async function() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
