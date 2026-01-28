@@ -27,15 +27,17 @@
             <i data-lucide="loader-2" class="w-10 h-10"></i>
         </div>
         <div class="text-green-600 font-bold text-xl animate-pulse">Carregando painel...</div>
-        <button onclick="document.getElementById('loading-screen').classList.add('hidden')" class="mt-8 text-xs text-gray-400 underline hover:text-gray-600">
-            Demorando muito? Clique aqui para entrar.
-        </button>
+        <p id="error-message" class="text-red-500 text-sm mt-4 hidden"></p>
+        <button id="btn-force-retry" onclick="window.location.reload()" class="hidden mt-4 text-gray-500 underline text-sm">Tentar novamente</button>
     </div>
 
     <div class="min-h-screen flex flex-col md:flex-row">
         <aside class="w-full md:w-64 bg-white/80 backdrop-blur-md border-r border-gray-200 flex-shrink-0">
-            <div class="p-6 border-b border-gray-100 flex items-center justify-start h-20">
-                <img src="../assets/logo.png" alt="Logo" class="h-8 w-auto object-contain">
+            <div class="p-6 border-b border-gray-100 flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-green-600 flex items-center justify-center text-white">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Área do Cliente</span>
             </div>
 
             <nav class="p-4 space-y-2">
@@ -66,7 +68,7 @@
             </div>
 
             <div id="sec-painel" class="fade-in">
-                <div class="w-full bg-[#F5DE3E] rounded-xl mb-6 flex flex-col-reverse md:flex-row items-center overflow-hidden shadow-sm min-h-[160px]">
+                <div class="w-full bg-[#F5DE3E] rounded-xl mb-6 flex flex-col-reverse md:flex-row items-center overflow-hidden shadow-sm">
                     <div class="flex-shrink-0 pt-4 px-4 md:pl-6">
                         <img src="../assets/banner-promo.png" alt="Promoção" class="h-48 md:h-56 object-contain -mb-1">
                     </div>
@@ -81,3 +83,208 @@
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-3">
+                    <div class="bg-blue-50/90 backdrop-blur-sm p-6 rounded-xl border border-blue-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('reembolso')">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-blue-200 text-blue-700 rounded-lg">
+                                <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                            </div>
+                            <span class="font-semibold text-sm text-gray-800">Solicitação de<br>Reembolso</span>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-blue-300 group-hover:text-blue-600"></i>
+                    </div>
+                    <div class="bg-yellow-50/90 backdrop-blur-sm p-6 rounded-xl border border-yellow-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-yellow-200 text-yellow-800 rounded-lg">
+                                <i data-lucide="package" class="w-6 h-6"></i>
+                            </div>
+                            <span class="font-semibold text-sm text-gray-800">Acompanhar<br>Pedido</span>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-yellow-300 group-hover:text-yellow-600"></i>
+                    </div>
+                    <div class="bg-green-50/90 backdrop-blur-sm p-6 rounded-xl border border-green-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-green-200 text-green-700 rounded-lg">
+                                <i data-lucide="credit-card" class="w-6 h-6"></i>
+                            </div>
+                            <span class="font-semibold text-sm text-gray-800">Status do<br>Pagamento</span>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-green-300 group-hover:text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sec-reembolso" class="hidden-section fade-in">
+                <button onclick="mudarAba('painel')" class="mb-4 flex items-center text-sm text-gray-500 hover:text-green-600 transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Voltar ao início
+                </button>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Reembolso</h2>
+                <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm max-w-3xl">
+                    <form onsubmit="event.preventDefault(); alert('Solicitação enviada com sucesso!');" class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Nome *</label>
+                            <input type="text" placeholder="Nome Completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm bg-white/80">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">CPF *</label>
+                            <input type="text" placeholder="000.000.000-00" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm bg-white/80">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Código de validação do reembolso *</label>
+                            <input type="text" placeholder='Para prosseguir com o reembolso...' class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm truncate bg-white/80">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Comprovante de Pagamento *</label>
+                            <div class="flex items-center gap-2">
+                                <input type="file" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-[#48C774] hover:bg-[#3da862] text-white font-bold py-3 rounded-lg transition-colors shadow-sm mt-4">Enviar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="sec-pedidos" class="hidden-section fade-in">
+                <h2 class="text-lg md:text-xl font-bold mb-4">Histórico de Pedidos</h2>
+                <div class="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50/80 border-b border-gray-200 text-gray-600 uppercase text-[10px] md:text-xs">
+                                <tr>
+                                    <th class="px-3 py-3 md:px-6 md:py-4 font-semibold w-2/5">Produto</th>
+                                    <th class="px-2 py-3 md:px-6 md:py-4 font-semibold">Valor</th>
+                                    <th class="px-2 py-3 md:px-6 md:py-4 font-semibold text-center hidden md:table-cell">Status</th> 
+                                    <th class="px-3 py-3 md:px-6 md:py-4 font-semibold text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-vendas" class="divide-y divide-gray-100 bg-white/60">
+                                <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Buscando informações...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sec-dados" class="hidden-section fade-in">
+                <h2 class="text-lg md:text-xl font-bold mb-4">Meus Dados</h2>
+                <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm max-w-2xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Nome</label><div id="view-nome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CPF</label><div id="view-cpf" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
+        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+        async function initDashboard() {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader && !loader.classList.contains('hidden')) {
+                    loader.classList.add('hidden');
+                }
+            }, 2500);
+
+            try {
+                const { data, error } = await _supabase.auth.getUser();
+                
+                if (error || !data?.user) {
+                    window.location.href = "/minha-conta";
+                    return;
+                }
+
+                const user = data.user;
+                document.getElementById('email-usuario').innerText = user.email;
+                document.getElementById('loading-screen').classList.add('hidden');
+
+                await Promise.allSettled([
+                    carregarVendas(user.id), 
+                    carregarDadosCliente(user.id)
+                ]);
+
+            } catch (err) {
+                console.error("Erro dashboard:", err);
+                document.getElementById('loading-screen').classList.add('hidden');
+            }
+        }
+
+        window.onload = initDashboard;
+
+        function mudarAba(aba) {
+            ['btn-painel', 'btn-pedidos', 'btn-dados'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.remove('active-tab');
+            });
+
+            ['painel', 'pedidos', 'dados', 'reembolso'].forEach(sec => {
+                const el = document.getElementById('sec-' + sec);
+                if(el) el.classList.add('hidden-section');
+            });
+
+            document.getElementById('sec-' + aba).classList.remove('hidden-section');
+            const btn = document.getElementById('btn-' + aba);
+            if (btn) btn.classList.add('active-tab');
+        }
+
+        async function carregarVendas(userId) {
+            const tbody = document.getElementById('lista-vendas');
+            const { data, error } = await _supabase
+                .from('vendas')
+                .select('*')
+                .eq('email_cliente', userId) 
+                .order('id', { ascending: false });
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`;
+            } else {
+                tbody.innerHTML = "";
+                data.forEach(venda => {
+                    let statusClass = "bg-yellow-100 text-yellow-800";
+                    let acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 shadow-sm w-full md:w-auto">Pagar</a>`;
+
+                    if(venda.status === 'Pago' || venda.status === 'Aprovado') {
+                        statusClass = "bg-green-100 text-green-800";
+                        acao = `<span class="text-green-600 font-bold text-xs flex justify-end items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
+                    }
+
+                    const row = `
+                        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50 align-top bg-white/80">
+                            <td class="px-3 py-3 md:px-6 md:py-4 text-gray-900 break-words max-w-[120px] md:max-w-none">
+                                <span class="font-medium text-xs md:text-sm block leading-tight">${venda.produto || 'Produto'}</span>
+                                <span class="md:hidden inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${statusClass}">${venda.status}</span>
+                            </td>
+                            <td class="px-2 py-3 md:px-6 md:py-4 text-xs md:text-sm font-bold text-gray-600 whitespace-nowrap">R$ ${venda.valor}</td>
+                            <td class="px-2 py-3 md:px-6 md:py-4 hidden md:table-cell text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusClass}">${venda.status}</span></td>
+                            <td class="px-3 py-3 md:px-6 md:py-4 text-right align-middle">${acao}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                lucide.createIcons();
+            }
+        }
+
+        async function carregarDadosCliente(userId) {
+            const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).maybeSingle(); 
+            if (data) {
+                const nome = data.nome || "Visitante";
+                document.getElementById('nome-usuario').innerText = nome;
+                document.getElementById('view-nome').innerText = nome;
+                document.getElementById('view-sobrenome').innerText = data.sobrenome || "-";
+                document.getElementById('view-cpf').innerText = data.cpf || "-";
+            }
+        }
+
+        async function sair() {
+            await _supabase.auth.signOut();
+            window.location.href = "/minha-conta";
+        }
+    </script>
+</body>
+</html>
