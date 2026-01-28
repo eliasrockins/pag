@@ -27,8 +27,9 @@
             <i data-lucide="loader-2" class="w-10 h-10"></i>
         </div>
         <div class="text-green-600 font-bold text-xl animate-pulse">Carregando painel...</div>
-        <p id="error-message" class="text-red-500 text-sm mt-4 hidden"></p>
-        <button id="btn-force-retry" onclick="window.location.reload()" class="hidden mt-4 text-gray-500 underline text-sm">Tentar novamente</button>
+        <button onclick="document.getElementById('loading-screen').classList.add('hidden')" class="mt-8 text-xs text-gray-400 underline hover:text-gray-600">
+            Demorando muito? Clique aqui para entrar à força.
+        </button>
     </div>
 
     <div class="min-h-screen flex flex-col md:flex-row">
@@ -195,4 +196,139 @@
 
     <script>
         lucide.createIcons();
-        const supabaseUrl =
+        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
+        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+        // --- SISTEMA DE EMERGÊNCIA (O Segredo para não travar) ---
+        // Se em 3 segundos o painel não abrir, ele abre na marra.
+        setTimeout(() => {
+            const screen = document.getElementById('loading-screen');
+            if (screen && !screen.classList.contains('hidden')) {
+                console.log("Forçando abertura do painel...");
+                screen.classList.add('hidden');
+            }
+        }, 3000);
+
+        async function initDashboard() {
+            try {
+                const { data, error } = await _supabase.auth.getUser();
+                
+                // Se não estiver logado ou der erro, não faz nada (o timeout destrava a tela igual)
+                if (error || !data?.user) {
+                    // window.location.href = "/minha-conta"; 
+                    return; 
+                }
+
+                const user = data.user;
+                document.getElementById('email-usuario').innerText = user.email;
+                
+                // Destrava a tela imediatamente ao confirmar usuário
+                document.getElementById('loading-screen').classList.add('hidden');
+
+                // Carrega os dados em segundo plano (se falhar, o site já está aberto)
+                carregarVendas(user.id);
+                carregarDadosCliente(user.id, user.email);
+
+            } catch (err) {
+                console.error("Erro fatal:", err);
+                document.getElementById('loading-screen').classList.add('hidden');
+            }
+        }
+
+        // Executa imediatamente
+        initDashboard();
+
+        function mudarAba(aba) {
+            ['btn-painel', 'btn-pedidos', 'btn-dados'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.remove('active-tab');
+            });
+
+            ['painel', 'pedidos', 'dados', 'reembolso'].forEach(sec => {
+                const el = document.getElementById('sec-' + sec);
+                if(el) el.classList.add('hidden-section');
+            });
+
+            document.getElementById('sec-' + aba).classList.remove('hidden-section');
+            const btn = document.getElementById('btn-' + aba);
+            if (btn) btn.classList.add('active-tab');
+        }
+
+        async function carregarVendas(userId) {
+            try {
+                const tbody = document.getElementById('lista-vendas');
+                const { data, error } = await _supabase
+                    .from('vendas')
+                    .select('*')
+                    .eq('email_cliente', userId) 
+                    .order('id', { ascending: false });
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`;
+                } else {
+                    tbody.innerHTML = "";
+                    data.forEach(venda => {
+                        let statusClass = "bg-yellow-100 text-yellow-800";
+                        let acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 shadow-sm w-full md:w-auto">Pagar</a>`;
+
+                        if(venda.status === 'Pago' || venda.status === 'Aprovado') {
+                            statusClass = "bg-green-100 text-green-800";
+                            acao = `<span class="text-green-600 font-bold text-xs flex justify-end items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
+                        }
+
+                        const row = `
+                            <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50 align-top bg-white/80">
+                                <td class="px-3 py-3 md:px-6 md:py-4 text-gray-900 break-words max-w-[120px] md:max-w-none">
+                                    <span class="font-medium text-xs md:text-sm block leading-tight">${venda.produto || 'Produto'}</span>
+                                    <span class="md:hidden inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${statusClass}">${venda.status}</span>
+                                </td>
+                                <td class="px-2 py-3 md:px-6 md:py-4 text-xs md:text-sm font-bold text-gray-600 whitespace-nowrap">R$ ${venda.valor}</td>
+                                <td class="px-2 py-3 md:px-6 md:py-4 hidden md:table-cell text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusClass}">${venda.status}</span></td>
+                                <td class="px-3 py-3 md:px-6 md:py-4 text-right align-middle">${acao}</td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+                    lucide.createIcons();
+                }
+            } catch (e) { console.log("Erro vendas", e); }
+        }
+
+        async function carregarDadosCliente(userId, userEmail) {
+            try {
+                const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).maybeSingle(); 
+                
+                // Preenche o email independente do banco
+                document.getElementById('view-email').innerText = userEmail || "-";
+
+                if (data) {
+                    // Pessoal
+                    document.getElementById('view-nome').innerText = data.nome || "-";
+                    document.getElementById('nome-usuario').innerText = data.nome || "Visitante";
+                    document.getElementById('view-sobrenome').innerText = data.sobrenome || "-";
+                    document.getElementById('view-cpf').innerText = data.cpf || "-";
+
+                    // Endereço (Novos campos)
+                    document.getElementById('view-cep').innerText = data.cep || "-";
+                    document.getElementById('view-rua').innerText = data.rua || "-";
+                    document.getElementById('view-numero').innerText = data.numero || "-";
+                    document.getElementById('view-bairro').innerText = data.bairro || "-";
+                    
+                    const cid = data.cidade || "";
+                    const est = data.estado || "";
+                    document.getElementById('view-cidade-uf').innerText = (cid || est) ? `${cid} - ${est}` : "-";
+                }
+            } catch (e) {
+                console.log("Erro ao carregar dados do cliente:", e);
+                // Não trava o site, apenas deixa os campos com "-"
+            }
+        }
+
+        async function sair() {
+            await _supabase.auth.signOut();
+            window.location.href = "/minha-conta";
+        }
+    </script>
+</body>
+</html>
