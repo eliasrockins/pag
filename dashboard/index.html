@@ -33,11 +33,8 @@
 
     <div class="min-h-screen flex flex-col md:flex-row">
         <aside class="w-full md:w-64 bg-white/80 backdrop-blur-md border-r border-gray-200 flex-shrink-0">
-            <div class="p-6 border-b border-gray-100 flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-green-600 flex items-center justify-center text-white">
-                    <i data-lucide="shield-check" class="w-5 h-5"></i>
-                </div>
-                <span class="font-bold text-lg tracking-tight">Área do Cliente</span>
+            <div class="p-6 border-b border-gray-100 flex items-center justify-start h-20">
+                <img src="../assets/logo.png" alt="Logo" class="h-8 w-auto object-contain">
             </div>
 
             <nav class="p-4 space-y-2">
@@ -68,7 +65,7 @@
             </div>
 
             <div id="sec-painel" class="fade-in">
-                <div class="w-full bg-[#F5DE3E] rounded-xl mb-6 flex flex-col-reverse md:flex-row items-center overflow-hidden shadow-sm">
+                <div class="w-full bg-[#F5DE3E] rounded-xl mb-6 flex flex-col-reverse md:flex-row items-center overflow-hidden shadow-sm min-h-[160px]">
                     <div class="flex-shrink-0 pt-4 px-4 md:pl-6">
                         <img src="../assets/banner-promo.png" alt="Promoção" class="h-48 md:h-56 object-contain -mb-1">
                     </div>
@@ -166,12 +163,31 @@
 
             <div id="sec-dados" class="hidden-section fade-in">
                 <h2 class="text-lg md:text-xl font-bold mb-4">Meus Dados</h2>
-                <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm max-w-2xl">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm max-w-4xl">
+                    
+                    <div class="flex items-center gap-2 mb-3 border-b border-gray-100 pb-2">
+                        <i data-lucide="user" class="w-4 h-4 text-green-600"></i>
+                        <span class="text-sm font-bold text-gray-700">Dados Pessoais</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Nome</label><div id="view-nome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">CPF</label><div id="view-cpf" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">E-mail</label><div id="view-email" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px] truncate">-</div></div>
                     </div>
+
+                    <div class="flex items-center gap-2 mb-3 border-b border-gray-100 pb-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-green-600"></i>
+                        <span class="text-sm font-bold text-gray-700">Endereço de Entrega</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CEP</label><div id="view-cep" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div class="md:col-span-2"><label class="text-xs font-semibold text-gray-500 uppercase">Rua</label><div id="view-rua" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Número</label><div id="view-numero" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Bairro</label><div id="view-bairro" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">Cidade/UF</label><div id="view-cidade-uf" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                    </div>
+
                 </div>
             </div>
         </main>
@@ -179,112 +195,4 @@
 
     <script>
         lucide.createIcons();
-        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
-        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
-
-        async function initDashboard() {
-            setTimeout(() => {
-                const loader = document.getElementById('loading-screen');
-                if (loader && !loader.classList.contains('hidden')) {
-                    loader.classList.add('hidden');
-                }
-            }, 2500);
-
-            try {
-                const { data, error } = await _supabase.auth.getUser();
-                
-                if (error || !data?.user) {
-                    window.location.href = "/minha-conta";
-                    return;
-                }
-
-                const user = data.user;
-                document.getElementById('email-usuario').innerText = user.email;
-                document.getElementById('loading-screen').classList.add('hidden');
-
-                await Promise.allSettled([
-                    carregarVendas(user.id), 
-                    carregarDadosCliente(user.id)
-                ]);
-
-            } catch (err) {
-                console.error("Erro dashboard:", err);
-                document.getElementById('loading-screen').classList.add('hidden');
-            }
-        }
-
-        window.onload = initDashboard;
-
-        function mudarAba(aba) {
-            ['btn-painel', 'btn-pedidos', 'btn-dados'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.remove('active-tab');
-            });
-
-            ['painel', 'pedidos', 'dados', 'reembolso'].forEach(sec => {
-                const el = document.getElementById('sec-' + sec);
-                if(el) el.classList.add('hidden-section');
-            });
-
-            document.getElementById('sec-' + aba).classList.remove('hidden-section');
-            const btn = document.getElementById('btn-' + aba);
-            if (btn) btn.classList.add('active-tab');
-        }
-
-        async function carregarVendas(userId) {
-            const tbody = document.getElementById('lista-vendas');
-            const { data, error } = await _supabase
-                .from('vendas')
-                .select('*')
-                .eq('email_cliente', userId) 
-                .order('id', { ascending: false });
-
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`;
-            } else {
-                tbody.innerHTML = "";
-                data.forEach(venda => {
-                    let statusClass = "bg-yellow-100 text-yellow-800";
-                    let acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 shadow-sm w-full md:w-auto">Pagar</a>`;
-
-                    if(venda.status === 'Pago' || venda.status === 'Aprovado') {
-                        statusClass = "bg-green-100 text-green-800";
-                        acao = `<span class="text-green-600 font-bold text-xs flex justify-end items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
-                    }
-
-                    const row = `
-                        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50 align-top bg-white/80">
-                            <td class="px-3 py-3 md:px-6 md:py-4 text-gray-900 break-words max-w-[120px] md:max-w-none">
-                                <span class="font-medium text-xs md:text-sm block leading-tight">${venda.produto || 'Produto'}</span>
-                                <span class="md:hidden inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${statusClass}">${venda.status}</span>
-                            </td>
-                            <td class="px-2 py-3 md:px-6 md:py-4 text-xs md:text-sm font-bold text-gray-600 whitespace-nowrap">R$ ${venda.valor}</td>
-                            <td class="px-2 py-3 md:px-6 md:py-4 hidden md:table-cell text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusClass}">${venda.status}</span></td>
-                            <td class="px-3 py-3 md:px-6 md:py-4 text-right align-middle">${acao}</td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
-                });
-                lucide.createIcons();
-            }
-        }
-
-        async function carregarDadosCliente(userId) {
-            const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).maybeSingle(); 
-            if (data) {
-                const nome = data.nome || "Visitante";
-                document.getElementById('nome-usuario').innerText = nome;
-                document.getElementById('view-nome').innerText = nome;
-                document.getElementById('view-sobrenome').innerText = data.sobrenome || "-";
-                document.getElementById('view-cpf').innerText = data.cpf || "-";
-            }
-        }
-
-        async function sair() {
-            await _supabase.auth.signOut();
-            window.location.href = "/minha-conta";
-        }
-    </script>
-</body>
-</html>
+        const supabaseUrl =
