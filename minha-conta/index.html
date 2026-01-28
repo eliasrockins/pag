@@ -13,60 +13,62 @@
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .bg-amarelo { background-color: #F5DE3E; }
         .text-verde { color: #00a38c; }
-        .icon-bg { background-color: #d1fae5; color: #0a5f53; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+        .icon-bg { background-color: #d1fae5; color: #0a5f53; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
         
         .btn-gradiente { background: linear-gradient(135deg, #00a38c 0%, #008e7a 100%); transition: all 0.2s; }
         .btn-gradiente:hover { background: linear-gradient(135deg, #008e7a 0%, #006e5f 100%); }
         
-        .glass { background: rgba(255, 246, 208, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(0, 0, 0, 0.1); }
-        .input-style { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.15); padding: 12px 12px 12px 40px; border-radius: 0.75rem; width: 100%; outline: none; transition: all 0.2s; font-size: 14px; }
+        /* Ajuste do Card para Mobile */
+        .glass { background: rgba(255, 246, 208, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(0, 0, 0, 0.1); width: 100%; max-width: 100%; }
+        
+        .input-style { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.15); padding: 12px 12px 12px 40px; border-radius: 0.5rem; width: 100%; outline: none; transition: all 0.2s; font-size: 14px; }
         .input-style:focus { border-color: #00a38c; box-shadow: 0 0 0 2px rgba(0, 163, 140, 0.2); background: rgba(255, 255, 255, 1); }
         .hidden { display: none; }
         .auto-filled { animation: highlight 1s ease-out; background-color: #f0fdf4 !important; border-color: #00a38c !important; }
         @keyframes highlight { 0% { background-color: #bbf7d0; } 100% { background-color: rgba(255, 255, 255, 0.7); } }
     </style>
 </head>
-<body class="bg-amarelo min-h-screen w-full">
+<body class="bg-amarelo min-h-screen w-full flex flex-col">
 
     <div class="fixed inset-0 pointer-events-none z-0">
         <div class="absolute inset-0 bg-gradient-to-b from-[#F5DE3E] via-[#FFF3A6] to-white"></div>
     </div>
 
-    <header class="absolute top-6 left-6 z-50">
-        <img src="../assets/logo.png" alt="Logo" class="w-28 lg:w-40">
+    <header class="absolute top-4 left-4 z-50">
+        <img src="../assets/logo.png" alt="Logo" class="w-24 lg:w-40">
     </header>
 
-    <div class="relative z-10 w-full min-h-screen flex flex-col lg:flex-row items-center justify-between px-4 pt-24 pb-10 lg:px-16 lg:pt-0 gap-8 lg:gap-0">
+    <div class="relative z-10 w-full min-h-screen flex flex-col lg:flex-row items-center justify-between px-4 pt-20 pb-8 lg:px-16 lg:pt-0 lg:pb-0 gap-8">
         
-        <div class="w-full lg:w-1/2 flex flex-col justify-center px-2">
+        <div class="w-full lg:w-1/2 flex flex-col justify-center order-1">
             
-            <div class="mb-4 flex flex-col items-start gap-2">
+            <div class="mb-3 flex flex-col items-start gap-1">
                 <div class="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1 backdrop-blur shadow-sm">
-                    <i data-lucide="shield-check" class="text-verde w-4 h-4"></i>
-                    <span class="text-xs font-bold text-black/80 uppercase tracking-wide">Sessão protegida</span>
+                    <i data-lucide="shield-check" class="text-verde w-3 h-3"></i>
+                    <span class="text-[10px] font-bold text-black/80 uppercase tracking-wide">Sessão protegida</span>
                 </div>
-                <span class="text-lg font-bold text-gray-800 opacity-80">Crie sua conta.</span>
+                <span class="text-base font-bold text-gray-800 opacity-80">Crie sua conta.</span>
             </div>
 
-            <h1 class="text-3xl lg:text-5xl font-extrabold text-slate-900 leading-tight mb-4">
+            <h1 class="text-2xl lg:text-5xl font-extrabold text-slate-900 leading-tight mb-3">
                 A forma mais fácil e segura de receber pagamentos
             </h1>
 
-            <p class="text-sm lg:text-lg text-slate-700 leading-relaxed mb-8 max-w-xl">
+            <p class="text-sm lg:text-lg text-slate-700 leading-relaxed mb-6">
                 Toda tecnologia e infraestrutura necessária para integrar a página de pagamento ao seu e‑commerce com praticidade e segurança de ponta a ponta.
             </p>
 
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <div class="flex items-center gap-3">
-                    <div class="icon-bg"><i data-lucide="shield-alert" class="w-5 h-5"></i></div>
+                    <div class="icon-bg"><i data-lucide="shield-alert" class="w-4 h-4"></i></div>
                     <span class="font-bold text-slate-800 text-sm lg:text-lg">Evite fraudes e golpes</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <div class="icon-bg"><i data-lucide="lock-keyhole" class="w-5 h-5"></i></div>
+                    <div class="icon-bg"><i data-lucide="lock-keyhole" class="w-4 h-4"></i></div>
                     <span class="font-bold text-slate-800 text-sm lg:text-lg">Compra Protegida</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <div class="icon-bg"><i data-lucide="headset" class="w-5 h-5"></i></div>
+                    <div class="icon-bg"><i data-lucide="headset" class="w-4 h-4"></i></div>
                     <span class="font-bold text-slate-800 text-sm lg:text-lg leading-tight">Apoio PagBank para mediar transações</span>
                 </div>
             </div>
@@ -76,75 +78,75 @@
             </div>
         </div>
 
-        <div class="w-full lg:w-5/12 flex justify-center lg:justify-end">
-            <div class="glass rounded-3xl shadow-2xl overflow-hidden w-full max-w-md mx-auto">
+        <div class="w-full lg:w-5/12 flex justify-center order-2">
+            <div class="glass rounded-2xl shadow-xl overflow-hidden w-full">
                 
-                <div class="px-6 pt-8 pb-4 text-center">
-                    <h2 id="titulo-pagina" class="text-2xl font-bold text-black">Acessar sua conta</h2>
-                    <div class="mt-3 h-1 w-16 bg-[#F5DE3E] mx-auto rounded-full"></div>
+                <div class="px-5 pt-6 pb-4 text-center">
+                    <h2 id="titulo-pagina" class="text-xl font-bold text-black">Acessar sua conta</h2>
+                    <div class="mt-2 h-1 w-12 bg-[#F5DE3E] mx-auto rounded-full"></div>
                 </div>
 
-                <div class="px-6 pb-8">
-                    <div class="space-y-4">
+                <div class="px-5 pb-6">
+                    <div class="space-y-3">
                         <div>
-                            <label class="text-sm font-medium text-black/85 ml-1">E-mail</label>
+                            <label class="text-xs font-bold text-black/70 ml-1">E-mail</label>
                             <div class="relative mt-1">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10">
-                                    <i data-lucide="mail" class="h-5 w-5 text-black/40"></i>
+                                    <i data-lucide="mail" class="h-4 w-4 text-black/40"></i>
                                 </div>
-                                <input type="email" id="email" placeholder="seu@email.com" class="input-style relative z-0">
+                                <input type="email" id="email" placeholder="seu@email.com" class="input-style text-sm">
                             </div>
                         </div>
                         <div>
-                            <label class="text-sm font-medium text-black/85 ml-1">Senha</label>
+                            <label class="text-xs font-bold text-black/70 ml-1">Senha</label>
                             <div class="relative mt-1">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10">
-                                    <i data-lucide="lock" class="h-5 w-5 text-black/40"></i>
+                                    <i data-lucide="lock" class="h-4 w-4 text-black/40"></i>
                                 </div>
-                                <input type="password" id="password" placeholder="Mínimo 6 caracteres" class="input-style relative z-0">
+                                <input type="password" id="password" placeholder="Mínimo 6 caracteres" class="input-style text-sm">
                             </div>
                         </div>
                     </div>
 
-                    <div id="campos-extras" class="hidden space-y-4 mt-6 pt-4 border-t border-black/10 animate-in fade-in">
-                        <div class="text-xs font-bold text-black/70 uppercase tracking-wide mb-2">Dados Pessoais</div>
+                    <div id="campos-extras" class="hidden space-y-3 mt-4 pt-3 border-t border-black/10 animate-in fade-in">
+                        <div class="text-[10px] font-bold text-black/60 uppercase tracking-wide mb-1">Dados Pessoais</div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div><label class="text-xs font-medium ml-1">Nome</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="user" class="h-4 w-4 text-black/40"></i></div><input type="text" id="firstName" class="input-style" placeholder="Nome"></div></div>
-                            <div><label class="text-xs font-medium ml-1">Sobrenome</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="user" class="h-4 w-4 text-black/40"></i></div><input type="text" id="lastName" class="input-style" placeholder="Sobrenome"></div></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div><label class="text-xs font-bold text-black/70 ml-1">Nome</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="user" class="h-3 w-3 text-black/40"></i></div><input type="text" id="firstName" class="input-style" placeholder="Nome"></div></div>
+                            <div><label class="text-xs font-bold text-black/70 ml-1">Sobrenome</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="user" class="h-3 w-3 text-black/40"></i></div><input type="text" id="lastName" class="input-style" placeholder="Sobrenome"></div></div>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div><label class="text-xs font-medium ml-1">CPF</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="file-badge-2" class="h-4 w-4 text-black/40"></i></div><input type="text" id="cpf" placeholder="000.000..." class="input-style"></div></div>
-                            <div><label class="text-xs font-medium ml-1">Nascimento</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="calendar" class="h-4 w-4 text-black/40"></i></div><input type="date" id="birthDate" class="input-style"></div></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div><label class="text-xs font-bold text-black/70 ml-1">CPF</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="file-badge-2" class="h-3 w-3 text-black/40"></i></div><input type="text" id="cpf" placeholder="000.000..." class="input-style"></div></div>
+                            <div><label class="text-xs font-bold text-black/70 ml-1">Nascimento</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="calendar" class="h-3 w-3 text-black/40"></i></div><input type="date" id="birthDate" class="input-style"></div></div>
                         </div>
 
-                        <div class="text-xs font-bold text-black/70 uppercase tracking-wide mt-6 mb-2 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-verde"></i> Endereço</div>
+                        <div class="text-[10px] font-bold text-black/60 uppercase tracking-wide mt-3 mb-1 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3 text-verde"></i> Endereço</div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div class="col-span-1"><label class="text-xs font-medium ml-1">CEP</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="map-pin" class="h-4 w-4 text-black/40"></i></div><input type="text" id="cep" class="input-style" placeholder="CEP" maxlength="9"></div></div>
-                            <div class="md:col-span-2"><label class="text-xs font-medium ml-1">Rua</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="map" class="h-4 w-4 text-black/40"></i></div><input type="text" id="street" class="input-style" placeholder="Rua"></div></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <div><label class="text-xs font-bold text-black/70 ml-1">CEP</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="map-pin" class="h-3 w-3 text-black/40"></i></div><input type="text" id="cep" class="input-style" placeholder="CEP" maxlength="9"></div></div>
+                            <div class="md:col-span-2"><label class="text-xs font-bold text-black/70 ml-1">Rua</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="map" class="h-3 w-3 text-black/40"></i></div><input type="text" id="street" class="input-style" placeholder="Rua"></div></div>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div><label class="text-xs font-medium ml-1">Número</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="home" class="h-4 w-4 text-black/40"></i></div><input type="text" id="number" class="input-style" placeholder="Nº"></div></div>
-                            <div class="md:col-span-2"><label class="text-xs font-medium ml-1">Bairro</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="map-pinned" class="h-4 w-4 text-black/40"></i></div><input type="text" id="neighborhood" class="input-style" placeholder="Bairro"></div></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <div><label class="text-xs font-bold text-black/70 ml-1">Número</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="home" class="h-3 w-3 text-black/40"></i></div><input type="text" id="number" class="input-style" placeholder="Nº"></div></div>
+                            <div class="md:col-span-2"><label class="text-xs font-bold text-black/70 ml-1">Bairro</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="map-pinned" class="h-3 w-3 text-black/40"></i></div><input type="text" id="neighborhood" class="input-style" placeholder="Bairro"></div></div>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div><label class="text-xs font-medium ml-1">Cidade</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="building-2" class="h-4 w-4 text-black/40"></i></div><input type="text" id="city" class="input-style" placeholder="Cidade"></div></div>
-                            <div><label class="text-xs font-medium ml-1">UF</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="map" class="h-4 w-4 text-black/40"></i></div><input type="text" id="state" placeholder="UF" class="input-style uppercase" maxlength="2"></div></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div><label class="text-xs font-bold text-black/70 ml-1">Cidade</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="building-2" class="h-3 w-3 text-black/40"></i></div><input type="text" id="city" class="input-style" placeholder="Cidade"></div></div>
+                            <div><label class="text-xs font-bold text-black/70 ml-1">UF</label><div class="relative mt-1"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10"><i data-lucide="map" class="h-3 w-3 text-black/40"></i></div><input type="text" id="state" placeholder="UF" class="input-style uppercase" maxlength="2"></div></div>
                         </div>
                     </div>
 
-                    <button id="btn-acao" onclick="handleAuth()" class="btn-gradiente w-full mt-8 py-3 rounded-xl text-white font-bold shadow-lg text-lg">
+                    <button id="btn-acao" onclick="handleAuth()" class="btn-gradiente w-full mt-6 py-3 rounded-xl text-white font-bold shadow-lg text-base">
                         Entrar
                     </button>
 
-                    <p id="mensagem" class="text-center text-sm mt-4 font-medium min-h-[20px]"></p>
+                    <p id="mensagem" class="text-center text-xs mt-3 font-medium min-h-[16px]"></p>
 
-                    <div class="text-center mt-6">
-                        <button onclick="toggleMode()" class="text-sm font-medium text-verde hover:underline p-2">
+                    <div class="text-center mt-4">
+                        <button onclick="toggleMode()" class="text-xs font-bold text-verde hover:underline p-2">
                             <span id="texto-toggle">Não tem uma conta? Criar agora</span>
                         </button>
                     </div>
@@ -152,7 +154,7 @@
                 </div>
             </div>
             
-            <p class="mt-8 text-center text-xs text-black/50 lg:hidden pb-4">
+            <p class="mt-6 text-center text-[10px] text-black/50 lg:hidden">
                 Ao continuar, você concorda com os termos e políticas.
             </p>
         </div>
