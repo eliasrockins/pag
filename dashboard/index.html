@@ -13,6 +13,16 @@
         .hidden-section { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Estilo simples para o input de arquivo */
+        input[type="file"]::file-selector-button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e5e7eb;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -67,7 +77,6 @@
                     <div class="flex-shrink-0 pt-4 px-4 md:pl-6">
                         <img src="../assets/banner-promo.png" alt="Promoção" class="h-48 md:h-56 object-contain -mb-1">
                     </div>
-                    
                     <div class="flex-1 p-6 md:p-10 text-center md:text-left">
                         <h2 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-3">
                             Quanto mais você vende, menos taxa você paga
@@ -80,7 +89,7 @@
 
                 <div class="grid gap-4 md:grid-cols-3">
                     
-                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group">
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('reembolso')">
                         <div class="flex items-center gap-4">
                             <div class="p-3 bg-blue-200 text-blue-700 rounded-lg">
                                 <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
@@ -110,6 +119,47 @@
                         <i data-lucide="chevron-right" class="w-5 h-5 text-green-300 group-hover:text-green-600"></i>
                     </div>
 
+                </div>
+            </div>
+
+            <div id="sec-reembolso" class="hidden-section fade-in">
+                
+                <button onclick="mudarAba('painel')" class="mb-4 flex items-center text-sm text-gray-500 hover:text-green-600 transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Voltar ao início
+                </button>
+
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Reembolso</h2>
+
+                <div class="bg-white p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm max-w-3xl">
+                    <form onsubmit="event.preventDefault(); alert('Solicitação enviada com sucesso! Aguarde o contato.');" class="space-y-5">
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Nome *</label>
+                            <input type="text" placeholder="Nome Completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-sm">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">CPF *</label>
+                            <input type="text" placeholder="000.000.000-00" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-sm">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Código de validação do reembolso *</label>
+                            <input type="text" placeholder='Para prosseguir com o reembolso, é necessário ter solicitado previamente o "Código de validação do reembolso" caso...' class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-sm truncate">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Comprovante de Pagamento *</label>
+                            <div class="flex items-center gap-2">
+                                <input type="file" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-[#48C774] hover:bg-[#3da862] text-white font-bold py-3 rounded-lg transition-colors shadow-sm mt-4">
+                            Enviar
+                        </button>
+
+                    </form>
                 </div>
             </div>
 
@@ -181,13 +231,26 @@
 
         initDashboard();
 
+        // ATUALIZADO: Agora suporta a aba 'reembolso'
         function mudarAba(aba) {
-            ['painel', 'pedidos', 'dados'].forEach(sec => {
-                document.getElementById('sec-' + sec).classList.add('hidden-section');
-                document.getElementById('btn-' + sec).classList.remove('active-tab');
+            // Remove a classe 'active-tab' de todos os botões do menu
+            ['btn-painel', 'btn-pedidos', 'btn-dados'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.remove('active-tab');
             });
+
+            // Esconde todas as seções
+            ['painel', 'pedidos', 'dados', 'reembolso'].forEach(sec => {
+                const el = document.getElementById('sec-' + sec);
+                if(el) el.classList.add('hidden-section');
+            });
+
+            // Mostra a seção desejada
             document.getElementById('sec-' + aba).classList.remove('hidden-section');
-            document.getElementById('btn-' + aba).classList.add('active-tab');
+            
+            // Ativa o botão no menu (se existir correspondente)
+            const btn = document.getElementById('btn-' + aba);
+            if (btn) btn.classList.add('active-tab');
         }
 
         async function carregarVendas(userId) {
