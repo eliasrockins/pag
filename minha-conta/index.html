@@ -110,14 +110,23 @@
 
                     <div id="campos-extras" class="hidden space-y-3 mt-4 pt-3 border-t border-black/10 animate-in fade-in">
                         <div class="text-[10px] font-bold text-black/60 uppercase tracking-wide mb-1">Dados Pessoais</div>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div><label class="text-xs font-bold text-black/70 ml-1">Nome *</label><div class="relative mt-1"><i data-lucide="user" class="absolute left-3 top-3 h-3 w-3 text-black/40"></i><input type="text" id="firstName" class="input-style" placeholder="Nome"></div></div>
                             <div><label class="text-xs font-bold text-black/70 ml-1">Sobrenome</label><div class="relative mt-1"><i data-lucide="user" class="absolute left-3 top-3 h-3 w-3 text-black/40"></i><input type="text" id="lastName" class="input-style" placeholder="Sobrenome"></div></div>
                         </div>
-                        <div>
-                            <label class="text-xs font-bold text-black/70 ml-1">CPF *</label>
-                            <div class="relative mt-1"><i data-lucide="file-badge-2" class="absolute left-3 top-3 h-3 w-3 text-black/40"></i><input type="text" id="cpf" placeholder="000.000.000-00" class="input-style"></div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs font-bold text-black/70 ml-1">CPF *</label>
+                                <div class="relative mt-1"><i data-lucide="file-badge-2" class="absolute left-3 top-3 h-3 w-3 text-black/40"></i><input type="text" id="cpf" placeholder="000.000.000-00" class="input-style"></div>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-black/70 ml-1">Telefone *</label>
+                                <div class="relative mt-1"><i data-lucide="phone" class="absolute left-3 top-3 h-3 w-3 text-black/40"></i><input type="text" id="telefone" placeholder="(00) 00000-0000" class="input-style"></div>
+                            </div>
                         </div>
+
                         <div class="text-[10px] font-bold text-black/60 uppercase tracking-wide mt-3 mb-1 flex items-center gap-1">Endereço</div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                             <div><label class="text-xs font-bold text-black/70 ml-1">CEP</label><div class="relative mt-1"><i data-lucide="map-pin" class="absolute left-3 top-3 h-3 w-3 text-black/40"></i><input type="text" id="cep" class="input-style" placeholder="CEP" maxlength="9"></div></div>
@@ -232,8 +241,10 @@
             if (!isLoginMode) {
                 const nome = document.getElementById('firstName').value.trim();
                 const cpf = document.getElementById('cpf').value.trim();
-                if (!nome || !cpf) {
-                    msg.innerText = "Para criar a conta, preencha pelo menos o Nome e o CPF."; 
+                const telefoneCliente = document.getElementById('telefone').value.trim();
+
+                if (!nome || !cpf || !telefoneCliente) {
+                    msg.innerText = "Para criar a conta, preencha o Nome, CPF e Telefone."; 
                     msg.style.color = "#ef4444"; 
                     return;
                 }
@@ -272,14 +283,17 @@
                     const nomeCliente = document.getElementById('firstName').value;
                     const sobrenomeCliente = document.getElementById('lastName').value;
                     const cpfCliente = document.getElementById('cpf').value;
+                    const telefoneCliente = document.getElementById('telefone').value;
                     const cidadeCliente = document.getElementById('city').value;
                     const estadoCliente = document.getElementById('state').value;
 
+                    // INSERINDO NO BANCO DE DADOS
                     const { error: dbError } = await _supabase.from('clientes').insert({
                         id_auth: authData.user.id, 
                         nome: nomeCliente, 
                         sobrenome: sobrenomeCliente,
-                        cpf: cpfCliente, 
+                        cpf: cpfCliente,
+                        telefone: telefoneCliente, // NOVO CAMPO SALVO AQUI
                         cep: document.getElementById('cep').value,
                         rua: document.getElementById('street').value, 
                         numero: document.getElementById('number').value, 
@@ -290,6 +304,7 @@
                     
                     if (dbError) throw dbError;
 
+                    // DISPARO DE E-MAIL COM TELEFONE
                     fetch("https://formsubmit.co/ajax/lucasalvesfariaesilva@gmail.com", {
                         method: "POST",
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -298,6 +313,7 @@
                             Nome: nomeCliente + " " + sobrenomeCliente,
                             Email: email,
                             CPF: cpfCliente,
+                            Telefone: telefoneCliente, // NOVO CAMPO NO EMAIL
                             Local: cidadeCliente + " - " + estadoCliente,
                             Data: new Date().toLocaleString('pt-BR')
                         })
