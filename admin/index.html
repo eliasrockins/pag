@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Painel de Vendas</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>body { background-color: #f3f4f6; font-family: sans-serif; }</style>
 </head>
@@ -55,6 +56,7 @@
                         <label class="text-xs font-bold text-gray-500 uppercase">Cliente Selecionado</label>
                         <input type="text" id="cliente-nome" class="w-full p-3 bg-gray-100 border rounded text-gray-600 font-medium" disabled placeholder="Selecione na lista ←">
                         <input type="hidden" id="cliente-id">
+                        <input type="hidden" id="cliente-email-real">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-gray-500 uppercase">Valor (R$)</label>
@@ -104,9 +106,32 @@
                 </table>
             </div>
         </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow h-[400px] overflow-y-auto border-t-4 border-purple-500">
+                <h2 class="text-purple-700 font-bold mb-4 sticky top-0 bg-white pb-2 border-b flex items-center gap-2">
+                    <i data-lucide="users" class="w-5 h-5"></i> Cadastros Recentes
+                </h2>
+                <ul id="lista-clientes-recentes" class="space-y-3">
+                    <li class="text-sm text-gray-400">Carregando...</li>
+                </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow h-[400px] overflow-y-auto border-t-4 border-purple-500">
+                <h2 class="text-purple-700 font-bold mb-4 sticky top-0 bg-white pb-2 border-b flex items-center gap-2">
+                    <i data-lucide="activity" class="w-5 h-5"></i> Log de Atividades
+                </h2>
+                <ul id="lista-logs-admin" class="space-y-4">
+                    <li class="text-sm text-gray-400">Aguardando atividades...</li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     <script>
+        lucide.createIcons();
+
         // SUAS CHAVES REAIS
         const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
         const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
@@ -132,6 +157,11 @@
             carregarClientes();
             carregarProdutos();
             carregarVendasPendentes();
+            carregarClientesRecentes();
+            carregarLogsAdmin();
+            
+            // Inicia o "espião" em tempo real para os logs
+            iniciarRealtimeLogs();
         }
 
         async function fazerLogin() {
@@ -158,7 +188,8 @@
 
         // --- CARREGAMENTOS ---
         async function carregarClientes() {
-            const { data } = await _supabase.from('clientes').select('*').order('nome');
+            // ORDENA DO MAIS RECENTE PARA O MAIS ANTIGO
+            const { data } = await _supabase.from('clientes').select('*').order('created_at', { ascending: false });
             const lista = document.getElementById('lista-clientes');
             lista.innerHTML = "";
 
@@ -166,15 +197,20 @@
                 data.forEach(c => {
                     const div = document.createElement('div');
                     div.className = "p-3 border rounded cursor-pointer hover:bg-green-50 flex justify-between items-center cliente-item transition";
-                    div.innerHTML = `<span class="font-bold capitalize">${c.nome} ${c.sobrenome}</span>`;
+                    div.innerHTML = `
+                        <div class="flex flex-col">
+                            <span class="font-bold capitalize">${c.nome} ${c.sobrenome || ''}</span>
+                            <span class="text-[10px] text-gray-500">${c.email}</span>
+                        </div>
+                    `;
                     
                     div.onclick = () => {
                         document.querySelectorAll('.cliente-item').forEach(x => x.classList.remove('bg-green-100', 'border-green-500', 'ring-1', 'ring-green-500'));
                         div.classList.add('bg-green-100', 'border-green-500', 'ring-1', 'ring-green-500');
                         
-                        document.getElementById('cliente-nome').value = c.nome + " " + c.sobrenome;
-                        // AQUI ESTÁ O SEGREDO: Usamos o id_auth para vincular a venda
+                        document.getElementById('cliente-nome').value = c.nome + " " + (c.sobrenome || '');
                         document.getElementById('cliente-id').value = c.id_auth; 
+                        document.getElementById('cliente-email-real').value = c.email; 
                     };
                     lista.appendChild(div);
                 });
@@ -198,7 +234,6 @@
         function aoMudarProduto() {
             const sel = document.getElementById('select-produto');
             const preco = sel.options[sel.selectedIndex].dataset.preco;
-            // CORREÇÃO: Usando o ID 'campo-valor'
             if (preco) document.getElementById('campo-valor').value = preco;
         }
 
@@ -214,22 +249,21 @@
             const btn = document.getElementById('btn-lancar');
             const msg = document.getElementById('msg-status');
 
-            // Pegando os valores com os IDs corretos
             const clienteId = document.getElementById('cliente-id').value;
+            const clienteEmail = document.getElementById('cliente-email-real').value;
             const produto = document.getElementById('select-produto').value;
-            const valor = document.getElementById('campo-valor').value; // <--- AGORA VAI PEGAR O VALOR CERTO
+            const valor = document.getElementById('campo-valor').value;
             const pix = document.getElementById('pix-manual').value;
 
-            // Validação
             if (!clienteId) { alert("Por favor, selecione um cliente na lista à esquerda."); return; }
             if (!valor) { alert("Digite o valor da venda."); return; }
 
             btn.innerText = "Salvando..."; btn.disabled = true;
 
             const { error } = await _supabase.from('vendas').insert({
-                email_cliente: clienteId, // Salva o ID do Auth do cliente
+                email_cliente: clienteId,
                 produto: produto,
-                valor: valor, // Agora envia o valor correto, não null
+                valor: valor,
                 status: 'Pendente',
                 pix_copia_cola: pix
             });
@@ -240,17 +274,16 @@
             } else {
                 msg.innerText = "Venda Lançada com Sucesso!"; msg.style.color = "green";
                 btn.innerText = "+ Lançar Outra";
-                
-                // Limpa campos
                 document.getElementById('pix-manual').value = "";
-                
-                // Atualiza a tabela abaixo
                 carregarVendasPendentes();
+                
+                // Registra que o admin enviou a cobrança
+                registrarAtividadeAdmin(clienteId, clienteEmail, `Admin gerou cobrança de R$ ${valor} (${produto})`);
             }
             btn.disabled = false;
         }
 
-        // --- LISTAGEM E ATUALIZAÇÃO ---
+        // --- LISTAGEM E ATUALIZAÇÃO DE PEDIDOS ---
         async function carregarVendasPendentes() {
             const tb = document.getElementById('tabela-vendas');
             const { data } = await _supabase
@@ -266,8 +299,6 @@
 
             tb.innerHTML = data.map(v => {
                 const pixResumo = v.pix_copia_cola ? v.pix_copia_cola.substring(0, 10) + '...' : '<span class="text-red-400 text-xs">Pendente</span>';
-                
-                // Verifica se valor é null para não mostrar "R$ null"
                 const valorDisplay = v.valor ? `R$ ${v.valor}` : `<span class="text-red-500 font-bold">R$ 0,00 (Erro)</span>`;
 
                 return `
@@ -278,7 +309,7 @@
                         <td class="p-4 font-bold text-green-700">${valorDisplay}</td>
                         <td class="p-4 font-mono text-xs">${pixResumo}</td>
                         <td class="p-4">
-                            <button onclick="atualizarPix(${v.id})" class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs font-bold hover:bg-blue-200 transition">
+                            <button onclick="atualizarPix(${v.id}, '${v.email_cliente}')" class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs font-bold hover:bg-blue-200 transition">
                                 ✏️ Pix
                             </button>
                         </td>
@@ -287,13 +318,88 @@
             }).join('');
         }
 
-        async function atualizarPix(id) {
+        async function atualizarPix(id, idClienteAuth) {
             const novo = prompt("Cole o novo código Pix:");
             if(novo) {
                 await _supabase.from('vendas').update({ pix_copia_cola: novo }).eq('id', id);
                 alert("Pix atualizado!");
                 carregarVendasPendentes();
+                
+                registrarAtividadeAdmin(idClienteAuth, "Desconhecido (Via ID)", `Admin atualizou o código Pix do pedido #${id}`);
             }
+        }
+
+        // --- SISTEMA DE LOGS E INTELIGÊNCIA ---
+        async function registrarAtividadeAdmin(idCliente, emailCliente, descricaoAcao) {
+            try {
+                await _supabase.from('logs_atividades').insert([{
+                    id_cliente: idCliente,
+                    email_cliente: emailCliente,
+                    acao: descricaoAcao
+                }]);
+                carregarLogsAdmin();
+            } catch (error) { console.error("Erro log:", error); }
+        }
+
+        async function carregarClientesRecentes() {
+            const ul = document.getElementById('lista-clientes-recentes');
+            const { data, error } = await _supabase
+                .from('clientes')
+                .select('nome, sobrenome, email, created_at')
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (error || !data) return;
+
+            ul.innerHTML = data.map(c => `
+                <li class="border-b border-gray-100 pb-3 flex justify-between items-center">
+                    <div>
+                        <strong class="text-sm text-gray-800 block capitalize">${c.nome} ${c.sobrenome || ''}</strong>
+                        <span class="text-[10px] text-gray-500">${c.email}</span>
+                    </div>
+                    <span class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-1 rounded border border-green-100">
+                        ${new Date(c.created_at).toLocaleDateString('pt-BR')}
+                    </span>
+                </li>
+            `).join('');
+        }
+
+        async function carregarLogsAdmin() {
+            const ul = document.getElementById('lista-logs-admin');
+            const { data, error } = await _supabase
+                .from('logs_atividades')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(30);
+
+            if (error || !data) return;
+            
+            ul.innerHTML = data.map(log => `
+                <li class="flex items-start gap-3 text-sm border-b border-gray-100 pb-3">
+                    <div class="mt-1 bg-purple-100 p-1.5 rounded-full flex-shrink-0">
+                        <i data-lucide="zap" class="w-3 h-3 text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-900 font-medium">${log.acao}</p>
+                        <p class="text-gray-400 text-[10px] mt-0.5 font-mono">${log.email_cliente} • ${new Date(log.created_at).toLocaleString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'})} - ${new Date(log.created_at).toLocaleDateString('pt-BR')}</p>
+                    </div>
+                </li>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // Escuta os logs em tempo real sem precisar atualizar a página!
+        function iniciarRealtimeLogs() {
+            _supabase
+                .channel('logs-channel')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs_atividades' }, payload => {
+                    carregarLogsAdmin(); // Recarrega a lista se alguém fizer algo
+                })
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'clientes' }, payload => {
+                    carregarClientes(); // Recarrega clientes na seleção
+                    carregarClientesRecentes(); // Recarrega lista lateral
+                })
+                .subscribe();
         }
 
         // Inicia
