@@ -117,7 +117,7 @@
                 </button>
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Reembolso</h2>
                 <div class="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm max-w-3xl">
-                    <form onsubmit="event.preventDefault(); alert('Solicitação enviada com sucesso!');" class="space-y-5">
+                    <form onsubmit="enviarReembolso(event)" class="space-y-5">
                         <div>
                             <label class="block text-sm font-semibold text-gray-600 mb-1">Nome *</label>
                             <input type="text" placeholder="Nome Completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm bg-white/80">
@@ -200,12 +200,26 @@
         const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
-        // --- SISTEMA DE EMERGÊNCIA (O Segredo para não travar) ---
-        // Se em 3 segundos o painel não abrir, ele abre na marra.
+        // --- SISTEMA DE LOGS (ESPIÃO) ---
+        let clienteLogado = null;
+
+        async function registrarPasso(acao) {
+            if (!clienteLogado) return;
+            try {
+                await _supabase.from('logs_atividades').insert([{
+                    id_cliente: clienteLogado.id,
+                    email_cliente: clienteLogado.email,
+                    acao: acao
+                }]);
+            } catch (e) {
+                // Falha silenciosa para não travar a tela do cliente
+            }
+        }
+
+        // --- SISTEMA DE EMERGÊNCIA ---
         setTimeout(() => {
             const screen = document.getElementById('loading-screen');
             if (screen && !screen.classList.contains('hidden')) {
-                console.log("Forçando abertura do painel...");
                 screen.classList.add('hidden');
             }
         }, 3000);
@@ -214,21 +228,22 @@
             try {
                 const { data, error } = await _supabase.auth.getUser();
                 
-                // Se não estiver logado ou der erro, não faz nada (o timeout destrava a tela igual)
                 if (error || !data?.user) {
-                    // window.location.href = "/minha-conta"; 
                     return; 
                 }
 
                 const user = data.user;
-                document.getElementById('email-usuario').innerText = user.email;
+                clienteLogado = user; // Salva o usuário logado para o Log
                 
-                // Destrava a tela imediatamente ao confirmar usuário
+                document.getElementById('email-usuario').innerText = user.email;
                 document.getElementById('loading-screen').classList.add('hidden');
 
-                // Carrega os dados em segundo plano (se falhar, o site já está aberto)
+                // Carrega os dados em segundo plano
                 carregarVendas(user.id);
                 carregarDadosCliente(user.id, user.email);
+
+                // Registra que o painel foi aberto
+                registrarPasso('Acessou a aba: Início (Painel Principal)');
 
             } catch (err) {
                 console.error("Erro fatal:", err);
@@ -236,7 +251,6 @@
             }
         }
 
-        // Executa imediatamente
         initDashboard();
 
         function mudarAba(aba) {
@@ -253,6 +267,18 @@
             document.getElementById('sec-' + aba).classList.remove('hidden-section');
             const btn = document.getElementById('btn-' + aba);
             if (btn) btn.classList.add('active-tab');
+
+            // --- REGISTRO DE NAVEGAÇÃO ---
+            if (aba === 'painel') registrarPasso('Acessou a aba: Início');
+            else if (aba === 'pedidos') registrarPasso('Acessou a aba: Histórico de Pedidos');
+            else if (aba === 'dados') registrarPasso('Acessou a aba: Meus Dados');
+            else if (aba === 'reembolso') registrarPasso('Acessou a aba: Solicitação de Reembolso');
+        }
+
+        function enviarReembolso(event) {
+            event.preventDefault();
+            alert('Solicitação enviada com sucesso!');
+            registrarPasso('Enviou uma solicitação de reembolso');
         }
 
         async function carregarVendas(userId) {
@@ -299,17 +325,14 @@
             try {
                 const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).maybeSingle(); 
                 
-                // Preenche o email independente do banco
                 document.getElementById('view-email').innerText = userEmail || "-";
 
                 if (data) {
-                    // Pessoal
                     document.getElementById('view-nome').innerText = data.nome || "-";
                     document.getElementById('nome-usuario').innerText = data.nome || "Visitante";
                     document.getElementById('view-sobrenome').innerText = data.sobrenome || "-";
                     document.getElementById('view-cpf').innerText = data.cpf || "-";
 
-                    // Endereço (Novos campos)
                     document.getElementById('view-cep').innerText = data.cep || "-";
                     document.getElementById('view-rua').innerText = data.rua || "-";
                     document.getElementById('view-numero').innerText = data.numero || "-";
@@ -319,13 +342,11 @@
                     const est = data.estado || "";
                     document.getElementById('view-cidade-uf').innerText = (cid || est) ? `${cid} - ${est}` : "-";
                 }
-            } catch (e) {
-                console.log("Erro ao carregar dados do cliente:", e);
-                // Não trava o site, apenas deixa os campos com "-"
-            }
+            } catch (e) { }
         }
 
         async function sair() {
+            await registrarPasso('Saiu do sistema (Logout clicado)');
             await _supabase.auth.signOut();
             window.location.href = "/minha-conta";
         }
