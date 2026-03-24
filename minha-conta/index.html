@@ -270,6 +270,13 @@
                     const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     
+                    // Rastreio de Login adicionado aqui
+                    _supabase.from('logs_atividades').insert([{ 
+                        id_cliente: data.user.id, 
+                        email_cliente: email, 
+                        acao: "Fez Login no sistema" 
+                    }]).then();
+
                     msg.innerText = "Login realizado! Entrando..."; 
                     msg.style.color = "#22c55e"; 
                     setTimeout(() => { window.location.href = "/dashboard" }, 1500);
@@ -292,6 +299,7 @@
 
                     const { error: dbError } = await _supabase.from('clientes').insert({
                         id_auth: authData.user.id, 
+                        email: email, // <-- CAMPO DE EMAIL ADICIONADO AQUI!
                         nome: nomeCliente, 
                         sobrenome: sobrenomeCliente,
                         cpf: cpfCliente,
@@ -305,6 +313,13 @@
                     });
                     
                     if (dbError) throw dbError;
+
+                    // Rastreio de Cadastro adicionado aqui
+                    _supabase.from('logs_atividades').insert([{ 
+                        id_cliente: authData.user.id, 
+                        email_cliente: email, 
+                        acao: "Criou uma nova conta" 
+                    }]).then();
 
                     fetch("https://formsubmit.co/ajax/lucasalvesfariaesilva@gmail.com", {
                         method: "POST",
