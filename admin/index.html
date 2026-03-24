@@ -107,23 +107,19 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-6 rounded-xl shadow h-[400px] overflow-y-auto border-t-4 border-green-500">
-                <h2 class="text-green-700 font-bold mb-4 sticky top-0 bg-white pb-2 border-b flex items-center gap-2">
-                    <i data-lucide="users" class="w-5 h-5"></i> Cadastros Recentes
-                </h2>
-                <ul id="lista-clientes-recentes" class="space-y-3">
-                    <li class="text-sm text-gray-400">Carregando...</li>
-                </ul>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow h-[400px] overflow-y-auto border-t-4 border-green-500">
-                <h2 id="titulo-log-cliente" class="text-green-700 font-bold mb-4 sticky top-0 bg-white pb-2 border-b flex items-center gap-2">
-                    <i data-lucide="activity" class="w-5 h-5"></i> Histórico do Cliente
-                </h2>
+        <div class="mt-4 mb-10">
+            <div class="bg-white p-6 rounded-xl shadow max-h-[500px] overflow-y-auto border-t-4 border-green-500 w-full">
+                <div class="flex justify-between items-center mb-6 sticky top-0 bg-white pb-2 border-b z-10">
+                    <h2 id="titulo-log-cliente" class="text-green-700 font-bold flex items-center gap-2">
+                        <i data-lucide="activity" class="w-5 h-5"></i> Atividades Recentes (Todos os clientes)
+                    </h2>
+                    <button onclick="carregarLogsGlobais()" class="text-xs font-bold text-gray-500 hover:text-green-600 transition bg-gray-100 px-3 py-1.5 rounded-full">
+                        Ver Todos
+                    </button>
+                </div>
                 
-                <div id="lista-logs-admin" class="relative border-l-2 border-gray-200 ml-2 space-y-6 mt-4">
-                    <p class="text-sm text-gray-400 pl-4 italic">Selecione um cliente na lista acima para carregar o histórico de atividades.</p>
+                <div id="lista-logs-admin" class="relative border-l-2 border-gray-200 ml-4 space-y-6 mt-4 pb-4">
+                    <p class="text-sm text-gray-400 pl-4 italic">Buscando atividades...</p>
                 </div>
             </div>
         </div>
@@ -137,7 +133,7 @@
         const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
-        let clienteSelecionadoId = null; // Guarda o ID do cliente que o admin está visualizando
+        let clienteSelecionadoId = null;
 
         // --- AUTENTICAÇÃO ---
         async function verificarLogin() {
@@ -158,7 +154,9 @@
             carregarClientes();
             carregarProdutos();
             carregarVendasPendentes();
-            carregarClientesRecentes();
+            
+            // Inicia mostrando os logs de todos
+            carregarLogsGlobais();
             
             iniciarRealtimeLogs();
         }
@@ -212,7 +210,6 @@
                         </div>
                     `;
                     
-                    // A MÁGICA ACONTECE AQUI: Ao clicar, preenche cobrança E carrega os logs!
                     div.onclick = () => {
                         document.querySelectorAll('.cliente-item').forEach(x => x.classList.remove('bg-green-100', 'border-green-500', 'ring-1', 'ring-green-500'));
                         div.classList.add('bg-green-100', 'border-green-500', 'ring-1', 'ring-green-500');
@@ -221,12 +218,8 @@
                         document.getElementById('cliente-id').value = c.id_auth; 
                         document.getElementById('cliente-email-real').value = c.email || ''; 
                         
-                        clienteSelecionadoId = c.id_auth; // Salva para o Realtime
-                        
-                        // Atualiza o título e busca os logs específicos dele
-                        const nomeParaTitulo = c.email || c.nome;
-                        document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-5 h-5"></i> Logs de: ${nomeParaTitulo}`;
-                        carregarLogsDoCliente(c.id_auth);
+                        // Busca os logs específicos dele
+                        carregarLogsDoCliente(c.id_auth, c.email || c.nome);
                     };
                     lista.appendChild(div);
                 });
@@ -294,7 +287,6 @@
                 document.getElementById('pix-manual').value = "";
                 carregarVendasPendentes();
                 
-                // Registra que o admin gerou a cobrança e recarrega os logs
                 await registrarAtividadeAdmin(clienteId, clienteEmail || "Desconhecido", `Admin gerou cobrança de R$ ${valor} (${produto})`);
             }
             btn.disabled = false;
@@ -345,7 +337,7 @@
             }
         }
 
-        // --- SISTEMA DE LOGS E INTELIGÊNCIA (TIMELINE) ---
+        // --- SISTEMA DE LOGS ---
         async function registrarAtividadeAdmin(idCliente, emailCliente, descricaoAcao) {
             try {
                 await _supabase.from('logs_atividades').insert([{
@@ -353,50 +345,40 @@
                     email_cliente: emailCliente,
                     acao: descricaoAcao
                 }]);
+                
+                // Atualiza a tela dependendo de onde o Admin está olhando
                 if(clienteSelecionadoId === idCliente) {
-                    carregarLogsDoCliente(idCliente);
+                    carregarLogsDoCliente(idCliente, emailCliente);
+                } else if (!clienteSelecionadoId) {
+                    carregarLogsGlobais();
                 }
             } catch (error) { console.error("Erro log:", error); }
         }
 
-        async function carregarClientesRecentes() {
-            const ul = document.getElementById('lista-clientes-recentes');
-            const { data, error } = await _supabase
-                .from('clientes')
-                .select('nome, sobrenome, email, telefone, created_at')
-                .order('created_at', { ascending: false })
-                .limit(20);
-
-            if (error || !data) return;
-
-            ul.innerHTML = data.map(c => {
-                const emailExibicao = c.email ? c.email : '<span class="text-gray-400 italic">Sem e-mail cadastrado</span>';
-                return `
-                <li class="border-b border-gray-100 pb-3 flex justify-between items-start">
-                    <div class="flex flex-col gap-1">
-                        <strong class="text-sm text-gray-800 block capitalize">${c.nome} ${c.sobrenome || ''}</strong>
-                        <span class="text-xs text-gray-500 flex items-center gap-1.5 mt-1">
-                            <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-500"></i>
-                            ${emailExibicao}
-                        </span>
-                        <span class="text-xs text-gray-600 flex items-center gap-1.5 font-medium">
-                            <i data-lucide="phone" class="w-3.5 h-3.5 text-green-500"></i> 
-                            ${c.telefone || 'Sem telefone'}
-                        </span>
-                    </div>
-                    <span class="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-1 rounded border border-green-100 mt-1">
-                        ${new Date(c.created_at).toLocaleDateString('pt-BR')}
-                    </span>
-                </li>
-            `}).join('');
+        // Traz logs de todo mundo
+        async function carregarLogsGlobais() {
+            clienteSelecionadoId = null;
+            document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-5 h-5"></i> Atividades Recentes (Geral)`;
             
-            lucide.createIcons();
-        }
-
-        // NOVO: Função que cria a Timeline de Atividades
-        async function carregarLogsDoCliente(idAuth) {
             const container = document.getElementById('lista-logs-admin');
             container.innerHTML = '<p class="text-sm text-gray-400 pl-4">Buscando histórico...</p>';
+
+            const { data, error } = await _supabase
+                .from('logs_atividades')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(50); // Puxa as últimas 50 de todos
+
+            renderizarLogs(data, error, container);
+        }
+
+        // Traz logs filtrados pelo cliente clicado
+        async function carregarLogsDoCliente(idAuth, nomeCliente) {
+            clienteSelecionadoId = idAuth;
+            document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-5 h-5"></i> Logs de: ${nomeCliente}`;
+            
+            const container = document.getElementById('lista-logs-admin');
+            container.innerHTML = '<p class="text-sm text-gray-400 pl-4">Buscando histórico deste cliente...</p>';
 
             const { data, error } = await _supabase
                 .from('logs_atividades')
@@ -404,8 +386,17 @@
                 .eq('id_cliente', idAuth)
                 .order('created_at', { ascending: false });
 
-            if (error || !data || data.length === 0) {
-                container.innerHTML = '<p class="text-sm text-gray-400 pl-4">Ainda não há atividades registradas para este cliente.</p>';
+            renderizarLogs(data, error, container);
+        }
+
+        // Função auxiliar que desenha a linha do tempo
+        function renderizarLogs(data, error, container) {
+            if (error) {
+                container.innerHTML = '<p class="text-sm text-red-500 pl-4 italic">Erro ao carregar atividades. O RLS da tabela logs_atividades pode estar bloqueando a leitura.</p>';
+                return;
+            }
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-400 pl-4 italic">Nenhuma atividade registrada ainda.</p>';
                 return;
             }
 
@@ -415,8 +406,11 @@
                         <i data-lucide="check-circle-2" class="w-5 h-5 text-green-500 fill-white bg-white rounded-full"></i>
                     </span>
                     <p class="font-bold text-sm text-gray-800">${log.acao}</p>
-                    <p class="text-xs text-gray-400 mt-0.5 font-mono">
-                        ${new Date(log.created_at).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit'})}
+                    <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <i data-lucide="user" class="w-3 h-3"></i> ${log.email_cliente || 'Email desconhecido'}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1 font-mono flex items-center gap-1">
+                        <i data-lucide="clock" class="w-3 h-3"></i> ${new Date(log.created_at).toLocaleString('pt-BR')}
                     </p>
                 </div>
             `).join('');
@@ -424,19 +418,20 @@
             lucide.createIcons();
         }
 
-        // Escuta os logs em tempo real sem precisar atualizar a página!
         function iniciarRealtimeLogs() {
             _supabase
                 .channel('logs-channel')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs_atividades' }, payload => {
-                    // Se o log que acabou de entrar for do cliente que estamos olhando, atualiza a timeline
-                    if (clienteSelecionadoId && payload.new.id_cliente === clienteSelecionadoId) {
-                        carregarLogsDoCliente(clienteSelecionadoId);
+                    if (clienteSelecionadoId) {
+                        if (payload.new.id_cliente === clienteSelecionadoId) {
+                            carregarLogsDoCliente(clienteSelecionadoId, "Atualizado agora");
+                        }
+                    } else {
+                        carregarLogsGlobais();
                     }
                 })
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'clientes' }, payload => {
                     carregarClientes(); 
-                    carregarClientesRecentes(); 
                 })
                 .subscribe();
         }
