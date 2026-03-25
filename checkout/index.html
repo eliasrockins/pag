@@ -109,6 +109,30 @@
             window.location.href = "/dashboard";
         }
 
+        // --- SISTEMA DE LOGS DO CHECKOUT ---
+        let emailDaVenda = null;
+        let idClienteVenda = null;
+
+        async function registrarPassoCheckout(acao) {
+            if (!emailDaVenda) return;
+            
+            // Tenta pegar a sessão ativa, se não, usa o ID puxado da tabela
+            let idParaLog = idClienteVenda;
+            const { data: authData } = await _supabase.auth.getUser();
+            if (authData && authData.user) {
+                idParaLog = authData.user.id;
+            }
+
+            try {
+                await _supabase.from('logs_atividades').insert([{
+                    id_cliente: idParaLog,
+                    email_cliente: emailDaVenda,
+                    acao: acao
+                }]);
+            } catch (e) {}
+        }
+        // -----------------------------------
+
         // 2. BUSCAR DADOS DO PEDIDO
         async function carregarPedido() {
             const { data, error } = await _supabase
@@ -122,6 +146,13 @@
             if (error || !data) {
                 alert("Erro ao carregar pedido.");
                 return;
+            }
+
+            // Salva dados para o Log
+            emailDaVenda = data.email_cliente;
+            if (emailDaVenda) {
+                const { data: cli } = await _supabase.from('clientes').select('id_auth').eq('email', emailDaVenda).maybeSingle();
+                if (cli) idClienteVenda = cli.id_auth;
             }
 
             // Verifica Status
@@ -165,6 +196,9 @@
             texto.select();
             texto.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(texto.value);
+
+            // LOG DE AÇÃO REGISTRADO AQUI!
+            registrarPassoCheckout('Cliente clicou em pix copia e cola');
 
             const btn = document.getElementById('btn-copiar');
             const originalHTML = btn.innerHTML;
