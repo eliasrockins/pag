@@ -1,372 +1,46 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Painel de Vendas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>body { background-color: #f3f4f6; font-family: sans-serif; }</style>
-</head>
-<body class="bg-gray-100 min-h-screen">
-
-    <div id="tela-login" class="flex flex-col items-center justify-center h-screen px-4">
-        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Acesso Restrito 🔒</h2>
-            <form onsubmit="event.preventDefault(); fazerLogin();">
-                <label class="block text-sm font-medium text-gray-700 mb-1">E-mail Admin</label>
-                <input type="email" id="login-email" class="w-full p-3 border rounded mb-4" placeholder="admin@exemplo.com" required>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-                <input type="password" id="login-senha" class="w-full p-3 border rounded mb-6" placeholder="******" required>
-                <button type="submit" id="btn-login" class="w-full bg-blue-600 text-white p-3 rounded font-bold hover:bg-blue-700 transition">ENTRAR NO PAINEL</button>
-            </form>
-            <p id="msg-login" class="text-center mt-4 text-sm text-red-500"></p>
-        </div>
-    </div>
-
-    <div id="painel-principal" class="hidden p-6 max-w-7xl mx-auto space-y-8">
-        
-        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
-            <h1 class="text-2xl font-bold text-gray-800">Gerenciar Vendas</h1>
-            <div class="text-sm text-gray-500 flex items-center gap-4">
-                <span class="hidden md:inline">Logado: <strong id="user-email">...</strong></span>
-                <button onclick="sair()" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded border border-red-200">Sair</button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-4 rounded-xl shadow md:col-span-1 h-[500px] overflow-y-auto">
-                <h2 class="text-green-600 font-bold mb-4 sticky top-0 bg-white pb-2 border-b">1. Selecionar Cliente</h2>
-                <input type="text" id="busca-cliente" placeholder="Filtrar nome..." class="w-full p-2 border rounded mb-2 text-sm" onkeyup="filtrarClientes()">
-                <div id="lista-clientes" class="space-y-2 text-sm">
-                    <p class="text-gray-400">Carregando...</p>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow md:col-span-2">
-                <h2 class="text-green-600 font-bold mb-6">2. Dados da Cobrança</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Cliente Selecionado</label>
-                        <input type="text" id="cliente-nome" class="w-full p-3 bg-gray-100 border rounded text-gray-600 font-medium" disabled placeholder="Selecione na lista ←">
-                        <input type="hidden" id="cliente-id">
-                        <input type="hidden" id="cliente-email-real">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Valor (R$)</label>
-                        <input type="text" id="campo-valor" class="w-full p-3 border rounded font-bold text-gray-800" placeholder="Ex: 150.00">
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label class="text-xs font-bold text-gray-500 uppercase">Produto</label>
-                    <select id="select-produto" class="w-full p-3 border rounded bg-white" onchange="aoMudarProduto()">
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
-                <div class="mb-6">
-                    <label class="text-xs font-bold text-gray-500 uppercase">Pix Copia e Cola (Manual)</label>
-                    <textarea id="pix-manual" rows="3" class="w-full p-3 border rounded font-mono text-xs bg-gray-50" placeholder="Cole o código Pix gerado pelo seu banco aqui..."></textarea>
-                </div>
-                <button onclick="lancarPedido()" id="btn-lancar" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-green-200">+ Lançar Cobrança</button>
-                <p id="msg-status" class="mt-3 text-center text-sm font-medium"></p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow overflow-hidden">
-            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
-                <h2 class="text-blue-600 font-bold">Gerenciar Vendas Lançadas</h2>
-                <button onclick="carregarVendasPendentes()" class="text-xs text-blue-500 hover:underline">Atualizar Lista</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
-                        <tr>
-                            <th class="p-4">ID</th>
-                            <th class="p-4">Cliente (ID)</th>
-                            <th class="p-4">Produto</th>
-                            <th class="p-4">Valor</th>
-                            <th class="p-4">Pix Atual</th>
-                            <th class="p-4 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-vendas" class="divide-y divide-gray-100 bg-white">
-                        <tr><td colspan="6" class="p-4 text-center text-gray-400">Carregando...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="mt-4 mb-10">
-            <div class="bg-white p-6 rounded-xl shadow max-h-[500px] overflow-y-auto border-t-4 border-green-500 w-full">
-                <div class="flex justify-between items-center mb-6 sticky top-0 bg-white pb-2 border-b z-10">
-                    <h2 id="titulo-log-cliente" class="text-green-700 font-bold flex items-center gap-2">
-                        <i data-lucide="activity" class="w-5 h-5"></i> Atividades Recentes dos Clientes
-                    </h2>
-                    <button onclick="carregarLogsGlobais()" class="text-xs font-bold text-gray-500 hover:text-green-600 transition bg-gray-100 px-3 py-1.5 rounded-full uppercase tracking-wider">Ver Todos</button>
-                </div>
-                <div id="lista-logs-admin" class="relative border-l-2 border-gray-200 ml-4 space-y-6 mt-4 pb-4">
-                    <p class="text-sm text-gray-400 pl-4 italic">Buscando atividades dos clientes...</p>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        lucide.createIcons();
-        const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
-        const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
-        let clienteSelecionadoId = null;
-
-        async function verificarLogin() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) { mostrarPainel(session.user); } 
-            else { document.getElementById('tela-login').classList.remove('hidden'); }
-        }
-        function mostrarPainel(user) {
-            document.getElementById('tela-login').classList.add('hidden');
-            document.getElementById('painel-principal').classList.remove('hidden');
-            document.getElementById('user-email').innerText = user.email;
-            carregarClientes(); carregarProdutos(); carregarVendasPendentes(); carregarLogsGlobais(); iniciarRealtimeLogs();
-        }
-        async function fazerLogin() {
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-senha').value;
-            const { error } = await _supabase.auth.signInWithPassword({ email, password: pass });
-            if (error) { document.getElementById('msg-login').innerText = "Erro: " + error.message; } 
-            else { window.location.reload(); }
-        }
-        async function sair() { await _supabase.auth.signOut(); window.location.reload(); }
-
-        async function carregarClientes() {
-            const { data } = await _supabase.from('clientes').select('*').order('created_at', { ascending: false });
-            const lista = document.getElementById('lista-clientes');
-            lista.innerHTML = "";
-            if (data) {
-                data.forEach(c => {
-                    const div = document.createElement('div');
-                    div.className = "p-3 border rounded cursor-pointer hover:bg-green-50 flex justify-between items-start cliente-item transition";
-                    div.innerHTML = `<div class="flex flex-col gap-1 w-full"><span class="font-bold capitalize text-gray-800">${c.nome} ${c.sobrenome || ''}</span><span class="text-xs text-gray-500 flex items-center gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5 text-blue-500"></i>${c.email || 'N/A'}</span><span class="text-xs text-gray-600 flex items-center gap-1.5 font-medium"><i data-lucide="phone" class="w-3.5 h-3.5 text-green-500"></i>${c.telefone || 'N/A'}</span></div>`;
-                    div.onclick = () => {
-                        document.querySelectorAll('.cliente-item').forEach(x => x.classList.remove('bg-green-100', 'border-green-500', 'ring-1', 'ring-green-500'));
-                        div.classList.add('bg-green-100', 'border-green-500', 'ring-1', 'ring-green-500');
-                        document.getElementById('cliente-nome').value = c.nome + " " + (c.sobrenome || '');
-                        document.getElementById('cliente-id').value = c.id_auth; 
-                        document.getElementById('cliente-email-real').value = c.email || ''; 
-                        carregarLogsDoCliente(c.id_auth, c.email || c.nome);
-                    };
-                    lista.appendChild(div);
-                });
-                lucide.createIcons();
-            }
-        }
-
-        async function carregarProdutos() {
-            const { data } = await _supabase.from('produtos').select('*');
-            const sel = document.getElementById('select-produto');
-            if(data) { data.forEach(p => { const opt = document.createElement('option'); opt.value = p.nome; opt.dataset.preco = p.preco; opt.innerText = `${p.nome} - R$ ${p.preco}`; sel.appendChild(opt); }); }
-        }
-        function aoMudarProduto() { const sel = document.getElementById('select-produto'); const preco = sel.options[sel.selectedIndex].dataset.preco; if (preco) document.getElementById('campo-valor').value = preco; }
-        function filtrarClientes() { const termo = document.getElementById('busca-cliente').value.toLowerCase(); document.querySelectorAll('.cliente-item').forEach(item => { item.style.display = item.innerText.toLowerCase().includes(termo) ? "flex" : "none"; }); }
-
-        async function lancarPedido() {
-            const clienteId = document.getElementById('cliente-id').value;
-            const clienteEmail = document.getElementById('cliente-email-real').value;
-            const produto = document.getElementById('select-produto').value;
-            const valor = document.getElementById('campo-valor').value;
-            const pix = document.getElementById('pix-manual').value;
-            if (!clienteId || !valor) { alert("Selecione um cliente e digite o valor."); return; }
-            const { error } = await _supabase.from('vendas').insert({ email_cliente: clienteId, produto, valor, status: 'Pendente', pix_copia_cola: pix });
-            if (!error) {
-                alert("Venda Lançada!");
-                document.getElementById('pix-manual').value = "";
-                carregarVendasPendentes();
-                // Esta ação não aparece no log filtrado pois começa com Admin
-                registrarAtividadeAdmin(clienteId, clienteEmail, `Admin gerou cobrança de R$ ${valor} (${produto})`);
-            }
-        }
-
-        // --- GERENCIAR VENDAS (AJUSTE SOLICITADO: Pedidos Pagos ficam na lista com visual cinza) ---
-        async function carregarVendasPendentes() {
-            const tb = document.getElementById('tabela-vendas');
-            // AJUSTE: Busca Pendentes E Pagos/Aprovados
-            const { data } = await _supabase
-                .from('vendas')
-                .select('*')
-                .in('status', ['Pendente', 'Pago', 'Aprovado']) // <--- Busca ambos
-                .order('status', { ascending: false }) // Pendentes primeiro
-                .order('id', { ascending: false });
-
-            if (!data || data.length === 0) {
-                tb.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">Nenhuma venda lançada.</td></tr>`;
-                return;
-            }
-
-            tb.innerHTML = data.map(v => {
-                const isPago = v.status === 'Pago' || v.status === 'Aprovado';
-                
-                // AJUSTE VISUAL: Se pago, usa fundo cinza e texto claro (disabled style)
-                const rowClass = isPago ? 'bg-gray-100 text-gray-400 border-b border-gray-100' : 'bg-white hover:bg-green-50/50 border-b border-gray-100';
-                const textClass = isPago ? 'text-gray-400' : 'text-gray-700';
-                const valorClass = isPago ? 'text-gray-400' : 'text-green-600';
-                const pixClass = isPago ? 'text-gray-300' : 'text-gray-400';
-
-                const pixResumo = v.pix_copia_cola ? v.pix_copia_cola.substring(0, 10) + '...' : '<span class="text-red-400 text-xs font-bold">Aguardando</span>';
-                const valorDisplay = v.valor ? `R$ ${v.valor}` : `<span class="text-red-500 font-bold">R$ null</span>`;
-
-                // AJUSTE AÇÕES: Se pago, botões ficam cinzas e desativados (disabled)
-                let botoesAcaoHtml = '';
-                if (isPago) {
-                    botoesAcaoHtml = `
-                        <div class="flex items-center justify-center gap-2 opacity-50">
-                            <button disabled title="Pagamento já aprovado" class="bg-gray-200 text-gray-500 px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-not-allowed flex items-center gap-1 uppercase tracking-wider">
-                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Pago
-                            </button>
-                            <button disabled title="Indisponível para pedido pago" class="bg-gray-200 text-gray-500 px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-not-allowed flex items-center gap-1 uppercase tracking-wider">
-                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Pix
-                            </button>
-                            <button disabled title="Indisponível para pedido pago" class="bg-gray-200 text-gray-500 p-2 rounded-lg cursor-not-allowed">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    botoesAcaoHtml = `
-                        <div class="flex items-center justify-center gap-2">
-                            <button onclick="aprovarVenda(${v.id}, '${v.email_cliente}')" title="Aprovar Pagamento" class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-green-200 transition flex items-center gap-1 uppercase tracking-wider">
-                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Aprovar
-                            </button>
-                            <button onclick="atualizarPix(${v.id}, '${v.email_cliente}')" title="Atualizar Pix" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-blue-200 transition flex items-center gap-1 uppercase tracking-wider">
-                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Pix
-                            </button>
-                            <button onclick="deletarVenda(${v.id}, '${v.email_cliente}')" title="Deletar Pedido" class="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    `;
-                }
-
-                return `
-                    <tr class="${rowClass}">
-                        <td class="p-4 font-mono text-xs text-gray-400">#${v.id}</td>
-                        <td class="p-4 text-xs font-mono text-gray-400" title="${v.email_cliente}">${v.email_cliente.substring(0, 8)}...</td>
-                        <td class="p-4 text-sm font-medium ${textClass}">${v.produto}</td>
-                        <td class="p-4 font-bold ${valorClass}">${valorDisplay}</td>
-                        <td class="p-4 font-mono text-xs ${pixClass}">${pixResumo}</td>
-                        <td class="p-4">
-                            ${botoesAcaoHtml}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            lucide.createIcons();
-        }
-
-        async function deletarVenda(id, idAuth) {
-            if(confirm("Tem certeza que deseja DELETAR?")) {
-                const { error } = await _supabase.from('vendas').delete().eq('id', id);
-                if(!error) { carregarVendasPendentes(); registrarAtividadeAdmin(idAuth, "ID: " + idAuth, `Admin deletou o pedido #${id}`); }
-            }
-        }
-
-        async function aprovarVenda(id, idAuth) {
-            if(confirm("Deseja marcar o pedido #" + id + " como PAGO?")) {
-                const { error } = await _supabase.from('vendas').update({ status: 'Pago' }).eq('id', id);
-                if(!error) {
-                    // AJUSTE: Não remove mais da lista, apenas atualiza visualmente
-                    carregarVendasPendentes(); 
-                    registrarAtividadeAdmin(idAuth, "ID: " + idAuth, `Admin aprovou o pagamento do pedido #${id}`);
-                }
-            }
-        }
-
-        async function atualizarPix(id, idAuth) {
-            const novo = prompt("Cole o novo código Pix:");
-            if(novo) {
-                await _supabase.from('vendas').update({ pix_copia_cola: novo }).eq('id', id);
-                carregarVendasPendentes();
-                registrarAtividadeAdmin(idAuth, "ID: " + idAuth, `Admin atualizou o Pix do pedido #${id}`);
-            }
-        }
-
-        // --- SISTEMA DE LOGS (AJUSTE SOLICITADO: Trava definitiva para logs do Admin) ---
-        async function registrarAtividadeAdmin(idCliente, emailCliente, descricaoAcao) {
+async function carregarVendasModernas(userId) {
             try {
-                // Registra tudo no banco para histórico completo
-                await _supabase.from('logs_atividades').insert([{ id_cliente: idCliente, email_cliente: emailCliente, acao: descricaoAcao }]);
-                // Mas as funções de carregamento abaixo filtram para não mostrar Admin na tela
-                if(clienteSelecionadoId === idCliente) carregarLogsDoCliente(idCliente, emailCliente);
-                else if (!clienteSelecionadoId) carregarLogsGlobais();
-            } catch (e) {}
+                const container = document.getElementById('lista-vendas-moderna');
+                const contador = document.getElementById('contador-pedidos');
+                const { data, error } = await _supabase.from('vendas').select('*').eq('email_cliente', userId).order('id', { ascending: false });
+                
+                if (error || !data || data.length === 0) {
+                    container.innerHTML = `<div class="lg:col-span-2 text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200 flex flex-col items-center gap-5Shadow-sm"><div class="p-4 bg-gray-100 text-gray-400 rounded-full border"><i data-lucide="package-search" class="w-10 h-10"></i></div><h3 class="text-lg font-bold text-gray-900">Nenhum pedido encontrado</h3></div>`;
+                    contador.innerText = "0 pedidos"; lucide.createIcons(); return;
+                }
+
+                contador.innerText = `${data.length} ${data.length === 1 ? 'pedido' : 'pedidos'}`;
+                container.innerHTML = data.map(venda => {
+                    let statusBadge = ''; let acaoHtml = '';
+                    
+                    // AJUSTE: Badge muito pequeno (text-[10px]) e compacto (px-2 py-1)
+                    if (venda.status === 'Pago' || venda.status === 'Aprovado') {
+                        statusBadge = `<span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full text-[10px] font-bold border border-green-100 shrink-0"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
+                        acaoHtml = `<span class="text-[10px] text-gray-400 font-medium italic pt-2 block text-center lg:text-left">Compra protegida por PagBank.</span>`;
+                    } else {
+                        statusBadge = `<span class="inline-flex items-center gap-1 bg-yellow-50 text-yellow-800 px-2 py-1 rounded-full text-[10px] font-bold border border-yellow-100 shrink-0"><i data-lucide="clock-3" class="w-3 h-3"></i> Aguardando</span>`;
+                        acaoHtml = `<button onclick="irParaCheckoutModerno('${venda.id}')" class="w-full lg:w-auto bg-green-600 hover:bg-green-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md shadow-green-100 flex items-center justify-center gap-2 group mt-2 lg:mt-0">Pagar agora<i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i></button>`;
+                    }
+
+                    const dataFormatada = venda.created_at ? new Date(venda.created_at).toLocaleDateString('pt-BR') : '---';
+                    return `
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4 hover:shadow-lg transition-all duration-300 fade-in overflow-hidden relative">
+                            <div class="flex items-start justify-between gap-2 border-b border-gray-50 pb-3">
+                                <div class="truncate">
+                                    <h3 class="text-base font-extrabold text-gray-950 truncate capitalize" title="${venda.produto}">${venda.produto}</h3>
+                                    <p class="text-[10px] font-mono text-gray-400 mt-0.5">#${venda.id} | ${dataFormatada}</p>
+                                </div>
+                                ${statusBadge}
+                            </div>
+                            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
+                                <div>
+                                    <label class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Valor</label>
+                                    <p class="text-2xl font-black text-green-600">R$ ${venda.valor}</p>
+                                </div>
+                                ${acaoHtml}
+                            </div>
+                        </div>`;
+                }).join('');
+                lucide.createIcons();
+            } catch (e) { console.error("Erro vendas:", e); }
         }
-
-        async function carregarLogsGlobais() {
-            clienteSelecionadoId = null;
-            document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-5 h-5"></i> Atividades Recentes dos Clientes`;
-            
-            // Filtro na query (ilike) para buscar apenas o que NÃO começa com Admin
-            const { data, error } = await _supabase
-                .from('logs_atividades')
-                .select('*')
-                .not('acao', 'ilike', 'Admin%') 
-                .order('created_at', { ascending: false })
-                .limit(50);
-
-            renderizarLogs(data, error);
-        }
-
-        async function carregarLogsDoCliente(idAuth, nomeCliente) {
-            clienteSelecionadoId = idAuth;
-            document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-5 h-5"></i> Logs de: ${nomeCliente}`;
-            
-            // Filtro na query (ilike) para buscar apenas o que NÃO começa com Admin
-            const { data, error } = await _supabase
-                .from('logs_atividades')
-                .select('*')
-                .eq('id_cliente', idAuth)
-                .not('acao', 'ilike', 'Admin%') 
-                .order('created_at', { ascending: false });
-
-            renderizarLogs(data, error);
-        }
-
-        // Função auxiliar que desenha a linha do tempo (Com trava extra no JS)
-        function renderizarLogs(data, error) {
-            const container = document.getElementById('lista-logs-admin');
-            
-            // Trava de segurança no JS: Garante que nada comece com Admin (mesmo que a query falhe)
-            if (error || !data) { container.innerHTML = '<p class="text-sm text-gray-400 pl-4 italic">Buscando atividades...</p>'; return; }
-            const filteredData = data.filter(log => log.acao && !log.acao.startsWith('Admin'));
-            
-            if (filteredData.length === 0) { container.innerHTML = '<p class="text-sm text-gray-400 pl-4 italic">Nenhuma atividade de cliente registrada.</p>'; return; }
-            
-            container.innerHTML = filteredData.map(log => `
-                <div class="relative pl-6 fade-in">
-                    <span class="absolute -left-[11px] top-0 bg-white"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-500 fill-white bg-white rounded-full"></i></span>
-                    <p class="font-bold text-sm text-gray-800">${log.acao}</p>
-                    <p class="text-xs text-gray-500 mt-1 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${log.email_cliente || 'Desconhecido'}</p>
-                    <p class="text-xs text-gray-400 mt-1 font-mono flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${new Date(log.created_at).toLocaleString('pt-BR')}</p>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        function iniciarRealtimeLogs() {
-            _supabase.channel('logs-channel')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'logs_atividades' }, payload => {
-                    // Trava realtime: Se o novo log for do Admin, ignora
-                    if (payload.new.acao && payload.new.acao.startsWith('Admin')) return;
-
-                    if (clienteSelecionadoId && payload.new.id_cliente === clienteSelecionadoId) carregarLogsDoCliente(clienteSelecionadoId, "Atualizando...");
-                    else if (!clienteSelecionadoId) carregarLogsGlobais();
-                })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'vendas' }, () => carregarVendasPendentes())
-                .subscribe();
-        }
-
-        verificarLogin();
-    </script>
-</body>
-</html>
