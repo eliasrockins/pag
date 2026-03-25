@@ -71,39 +71,29 @@
                         <img src="../assets/banner-promo.png" alt="Promoção" class="h-48 md:h-56 object-contain -mb-1">
                     </div>
                     <div class="flex-1 p-6 md:p-10 text-center md:text-left">
-                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-3">
-                            Quanto mais você vende, menos taxa você paga
-                        </h2>
-                        <p class="text-slate-800 font-medium text-sm md:text-base leading-relaxed opacity-90">
-                            Planos exclusivos para quem fatura <span class="font-bold">R$5 mil, R$10 mil, R$15 mil ou mais</span> por mês. Quanto mais você vende, menor é a sua taxa.
-                        </p>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-3">Quanto mais você vende, menos taxa você paga</h2>
+                        <p class="text-slate-800 font-medium text-sm md:text-base leading-relaxed opacity-90">Planos exclusivos para quem fatura <span class="font-bold">R$5 mil, R$10 mil, R$15 mil ou mais</span> por mês.</p>
                     </div>
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-3">
                     <div class="bg-blue-50/90 backdrop-blur-sm p-6 rounded-xl border border-blue-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('reembolso')">
                         <div class="flex items-center gap-4">
-                            <div class="p-3 bg-blue-200 text-blue-700 rounded-lg">
-                                <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
-                            </div>
+                            <div class="p-3 bg-blue-200 text-blue-700 rounded-lg"><i data-lucide="rotate-ccw" class="w-6 h-6"></i></div>
                             <span class="font-semibold text-sm text-gray-800">Solicitação de<br>Reembolso</span>
                         </div>
                         <i data-lucide="chevron-right" class="w-5 h-5 text-blue-300 group-hover:text-blue-600"></i>
                     </div>
                     <div class="bg-yellow-50/90 backdrop-blur-sm p-6 rounded-xl border border-yellow-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
                         <div class="flex items-center gap-4">
-                            <div class="p-3 bg-yellow-200 text-yellow-800 rounded-lg">
-                                <i data-lucide="package" class="w-6 h-6"></i>
-                            </div>
+                            <div class="p-3 bg-yellow-200 text-yellow-800 rounded-lg"><i data-lucide="package" class="w-6 h-6"></i></div>
                             <span class="font-semibold text-sm text-gray-800">Acompanhar<br>Pedido</span>
                         </div>
                         <i data-lucide="chevron-right" class="w-5 h-5 text-yellow-300 group-hover:text-yellow-600"></i>
                     </div>
                     <div class="bg-green-50/90 backdrop-blur-sm p-6 rounded-xl border border-green-100 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center group" onclick="mudarAba('pedidos')">
                         <div class="flex items-center gap-4">
-                            <div class="p-3 bg-green-200 text-green-700 rounded-lg">
-                                <i data-lucide="credit-card" class="w-6 h-6"></i>
-                            </div>
+                            <div class="p-3 bg-green-200 text-green-700 rounded-lg"><i data-lucide="credit-card" class="w-6 h-6"></i></div>
                             <span class="font-semibold text-sm text-gray-800">Status do<br>Pagamento</span>
                         </div>
                         <i data-lucide="chevron-right" class="w-5 h-5 text-green-300 group-hover:text-green-600"></i>
@@ -120,21 +110,7 @@
                     <form onsubmit="enviarReembolso(event)" class="space-y-5">
                         <div>
                             <label class="block text-sm font-semibold text-gray-600 mb-1">Nome *</label>
-                            <input type="text" placeholder="Nome Completo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm bg-white/80">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-600 mb-1">CPF *</label>
-                            <input type="text" placeholder="000.000.000-00" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm bg-white/80">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-600 mb-1">Código de validação do reembolso *</label>
-                            <input type="text" placeholder='Para prosseguir com o reembolso...' class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition text-sm truncate bg-white/80">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-600 mb-1">Comprovante de Pagamento *</label>
-                            <div class="flex items-center gap-2">
-                                <input type="file" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
-                            </div>
+                            <input type="text" placeholder="Nome Completo" class="w-full p-3 border border-gray-300 rounded-lg outline-none transition text-sm bg-white/80">
                         </div>
                         <button type="submit" class="w-full bg-[#48C774] hover:bg-[#3da862] text-white font-bold py-3 rounded-lg transition-colors shadow-sm mt-4">Enviar</button>
                     </form>
@@ -165,7 +141,6 @@
             <div id="sec-dados" class="hidden-section fade-in">
                 <h2 class="text-lg md:text-xl font-bold mb-4">Meus Dados</h2>
                 <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm max-w-4xl">
-                    
                     <div class="flex items-center gap-2 mb-3 border-b border-gray-100 pb-2">
                         <i data-lucide="user" class="w-4 h-4 text-green-600"></i>
                         <span class="text-sm font-bold text-gray-700">Dados Pessoais</span>
@@ -173,7 +148,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Nome</label><div id="view-nome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Sobrenome</label><div id="view-sobrenome" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
-                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CPF</label><div id="view-cpf" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CPF</label><div id="view-cpf" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px] font-mono">-</div></div>
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">E-mail</label><div id="view-email" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px] truncate">-</div></div>
                     </div>
 
@@ -182,13 +157,12 @@
                         <span class="text-sm font-bold text-gray-700">Endereço de Entrega</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CEP</label><div id="view-cep" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
+                        <div><label class="text-xs font-semibold text-gray-500 uppercase">CEP</label><div id="view-cep" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px] font-mono">-</div></div>
                         <div class="md:col-span-2"><label class="text-xs font-semibold text-gray-500 uppercase">Rua</label><div id="view-rua" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Número</label><div id="view-numero" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Bairro</label><div id="view-bairro" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
                         <div><label class="text-xs font-semibold text-gray-500 uppercase">Cidade/UF</label><div id="view-cidade-uf" class="p-2 bg-gray-50 rounded border mt-1 min-h-[40px]">-</div></div>
                     </div>
-
                 </div>
             </div>
         </main>
@@ -200,8 +174,24 @@
         const supabaseKey = 'sb_publishable_7ib6PE-capYPhqdTrS0m2w_3d9QWE8x'
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
-        // --- SISTEMA DE LOGS (ESPIÃO) ---
         let clienteLogado = null;
+
+        // --- FUNÇÕES DE FORMATAÇÃO (MÁSCARAS VISUAIS) ---
+        function formatarCPF(v) {
+            if(!v || v === "-") return "-";
+            v = v.replace(/\D/g, '');
+            return v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+        }
+        function formatarTelefone(v) {
+            if(!v || v === "-") return "-";
+            v = v.replace(/\D/g, '');
+            return v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+        }
+        function formatarCEP(v) {
+            if(!v || v === "-") return "-";
+            v = v.replace(/\D/g, '');
+            return v.replace(/^(\d{5})(\d{3})$/, "$1-$2");
+        }
 
         async function registrarPasso(acao) {
             if (!clienteLogado) return;
@@ -211,46 +201,27 @@
                     email_cliente: clienteLogado.email,
                     acao: acao
                 }]);
-            } catch (e) {
-                // Falha silenciosa para não travar a tela do cliente
-            }
+            } catch (e) {}
         }
-
-        // --- SISTEMA DE EMERGÊNCIA ---
-        setTimeout(() => {
-            const screen = document.getElementById('loading-screen');
-            if (screen && !screen.classList.contains('hidden')) {
-                screen.classList.add('hidden');
-            }
-        }, 3000);
 
         async function initDashboard() {
             try {
                 const { data, error } = await _supabase.auth.getUser();
-                
-                if (error || !data?.user) {
-                    return; 
-                }
+                if (error || !data?.user) return; 
 
                 const user = data.user;
-                clienteLogado = user; // Salva o usuário logado para o Log
-                
+                clienteLogado = user; 
                 document.getElementById('email-usuario').innerText = user.email;
                 document.getElementById('loading-screen').classList.add('hidden');
 
-                // Carrega os dados em segundo plano
                 carregarVendas(user.id);
                 carregarDadosCliente(user.id, user.email);
 
-                // Registra que o painel foi aberto
-                registrarPasso('Acessou a aba: Início (Painel Principal)');
-
+                registrarPasso('Cliente clicou na aba inicio');
             } catch (err) {
-                console.error("Erro fatal:", err);
                 document.getElementById('loading-screen').classList.add('hidden');
             }
         }
-
         initDashboard();
 
         function mudarAba(aba) {
@@ -258,7 +229,6 @@
                 const el = document.getElementById(id);
                 if(el) el.classList.remove('active-tab');
             });
-
             ['painel', 'pedidos', 'dados', 'reembolso'].forEach(sec => {
                 const el = document.getElementById('sec-' + sec);
                 if(el) el.classList.add('hidden-section');
@@ -268,72 +238,60 @@
             const btn = document.getElementById('btn-' + aba);
             if (btn) btn.classList.add('active-tab');
 
-            // --- REGISTRO DE NAVEGAÇÃO ---
-            if (aba === 'painel') registrarPasso('Acessou a aba: Início');
-            else if (aba === 'pedidos') registrarPasso('Acessou a aba: Histórico de Pedidos');
-            else if (aba === 'dados') registrarPasso('Acessou a aba: Meus Dados');
-            else if (aba === 'reembolso') registrarPasso('Acessou a aba: Solicitação de Reembolso');
+            // TEXTOS ATUALIZADOS CONFORME SOLICITADO
+            if (aba === 'painel') registrarPasso('Cliente clicou na aba inicio');
+            else if (aba === 'pedidos') registrarPasso('Cliente clicou em aba meus pedidos');
+            else if (aba === 'dados') registrarPasso('Cliente clicou na aba meus dados');
+            else if (aba === 'reembolso') registrarPasso('Cliente clicou na aba reembolso');
         }
 
         function enviarReembolso(event) {
             event.preventDefault();
             alert('Solicitação enviada com sucesso!');
-            registrarPasso('Enviou uma solicitação de reembolso');
+            registrarPasso('Cliente enviou solicitação de reembolso');
+        }
+
+        window.irParaCheckout = async function(id) {
+            // TEXTO ATUALIZADO CONFORME SOLICITADO
+            await registrarPasso('cliente clicou em pagar');
+            window.location.href = `/checkout?id=${id}`;
         }
 
         async function carregarVendas(userId) {
             try {
                 const tbody = document.getElementById('lista-vendas');
-                const { data, error } = await _supabase
-                    .from('vendas')
-                    .select('*')
-                    .eq('email_cliente', userId) 
-                    .order('id', { ascending: false });
+                const { data } = await _supabase.from('vendas').select('*').eq('email_cliente', userId).order('id', { ascending: false });
 
                 if (!data || data.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Nenhum pedido encontrado.</td></tr>`;
                 } else {
                     tbody.innerHTML = "";
                     data.forEach(venda => {
-                        let statusClass = "bg-yellow-100 text-yellow-800";
-                        let acao = `<a href="/checkout?id=${venda.id}" class="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 shadow-sm w-full md:w-auto">Pagar</a>`;
-
+                        let acao = `<button onclick="irParaCheckout('${venda.id}')" class="bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold">Pagar</button>`;
                         if(venda.status === 'Pago' || venda.status === 'Aprovado') {
-                            statusClass = "bg-green-100 text-green-800";
-                            acao = `<span class="text-green-600 font-bold text-xs flex justify-end items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
+                            acao = `<span class="text-green-600 font-bold text-xs flex items-center justify-end gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Pago</span>`;
                         }
-
-                        const row = `
-                            <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50 align-top bg-white/80">
-                                <td class="px-3 py-3 md:px-6 md:py-4 text-gray-900 break-words max-w-[120px] md:max-w-none">
-                                    <span class="font-medium text-xs md:text-sm block leading-tight">${venda.produto || 'Produto'}</span>
-                                    <span class="md:hidden inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${statusClass}">${venda.status}</span>
-                                </td>
-                                <td class="px-2 py-3 md:px-6 md:py-4 text-xs md:text-sm font-bold text-gray-600 whitespace-nowrap">R$ ${venda.valor}</td>
-                                <td class="px-2 py-3 md:px-6 md:py-4 hidden md:table-cell text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusClass}">${venda.status}</span></td>
-                                <td class="px-3 py-3 md:px-6 md:py-4 text-right align-middle">${acao}</td>
-                            </tr>
-                        `;
-                        tbody.innerHTML += row;
+                        tbody.innerHTML += `<tr class="border-b"><td>${venda.produto}</td><td>R$ ${venda.valor}</td><td class="text-center">${venda.status}</td><td class="text-right">${acao}</td></tr>`;
                     });
                     lucide.createIcons();
                 }
-            } catch (e) { console.log("Erro vendas", e); }
+            } catch (e) {}
         }
 
         async function carregarDadosCliente(userId, userEmail) {
             try {
                 const { data } = await _supabase.from('clientes').select('*').eq('id_auth', userId).maybeSingle(); 
-                
                 document.getElementById('view-email').innerText = userEmail || "-";
 
                 if (data) {
                     document.getElementById('view-nome').innerText = data.nome || "-";
                     document.getElementById('nome-usuario').innerText = data.nome || "Visitante";
                     document.getElementById('view-sobrenome').innerText = data.sobrenome || "-";
-                    document.getElementById('view-cpf').innerText = data.cpf || "-";
-
-                    document.getElementById('view-cep').innerText = data.cep || "-";
+                    
+                    // APLICAÇÃO DAS MÁSCARAS NO VISUAL
+                    document.getElementById('view-cpf').innerText = formatarCPF(data.cpf);
+                    document.getElementById('view-cep').innerText = formatarCEP(data.cep);
+                    
                     document.getElementById('view-rua').innerText = data.rua || "-";
                     document.getElementById('view-numero').innerText = data.numero || "-";
                     document.getElementById('view-bairro').innerText = data.bairro || "-";
@@ -346,7 +304,7 @@
         }
 
         async function sair() {
-            await registrarPasso('Saiu do sistema (Logout clicado)');
+            await registrarPasso('Cliente deslogou');
             await _supabase.auth.signOut();
             window.location.href = "/minha-conta";
         }
