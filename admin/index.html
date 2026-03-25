@@ -19,92 +19,104 @@
                 <input type="email" id="login-email" class="w-full p-3 border rounded mb-4" placeholder="admin@exemplo.com" required>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
                 <input type="password" id="login-senha" class="w-full p-3 border rounded mb-6" placeholder="******" required>
-                <button type="submit" id="btn-login" class="w-full bg-blue-600 text-white p-3 rounded font-bold hover:bg-blue-700 transition">ENTRAR NO PAINEL</button>
+                <button type="submit" id="btn-login" class="w-full bg-blue-600 text-white p-3 rounded font-bold hover:bg-blue-700 transition uppercase tracking-wider">Entrar no Painel</button>
             </form>
-            <p id="msg-login" class="text-center mt-4 text-sm text-red-500"></p>
+            <p id="msg-login" class="text-center mt-4 text-sm text-red-500 font-bold"></p>
         </div>
     </div>
 
     <div id="painel-principal" class="hidden p-6 max-w-7xl mx-auto space-y-8">
         
-        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
-            <h1 class="text-2xl font-bold text-gray-800">Gerenciar Vendas</h1>
-            <div class="text-sm text-gray-500 flex items-center gap-4">
-                <span class="hidden md:inline">Logado: <strong id="user-email">...</strong></span>
-                <button onclick="sair()" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded border border-red-200">Sair</button>
+        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <h1 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Gerenciar Vendas</h1>
+            <div class="flex items-center gap-4">
+                <span class="hidden md:inline text-sm text-gray-400">Admin: <strong id="user-email" class="text-gray-600">...</strong></span>
+                <button onclick="sair()" class="text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg border border-red-100 font-bold text-xs transition-all uppercase">Sair</button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-4 rounded-xl shadow md:col-span-1 h-[500px] overflow-y-auto">
-                <h2 class="text-green-600 font-bold mb-4 sticky top-0 bg-white pb-2 border-b">1. Selecionar Cliente</h2>
-                <input type="text" id="busca-cliente" placeholder="Filtrar nome..." class="w-full p-2 border rounded mb-2 text-sm" onkeyup="filtrarClientes()">
-                <div id="lista-clientes" class="space-y-2 text-sm">
-                    <p class="text-gray-400">Carregando...</p>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 md:col-span-1 h-[520px] flex flex-col">
+                <h2 class="text-green-600 font-black mb-4 uppercase text-xs tracking-widest flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i> 1. Selecionar Cliente
+                </h2>
+                <input type="text" id="busca-cliente" placeholder="Filtrar por nome ou e-mail..." class="w-full p-3 border rounded-lg mb-4 text-sm outline-none focus:ring-2 focus:ring-green-500/20" onkeyup="filtrarClientes()">
+                <div id="lista-clientes" class="space-y-2 overflow-y-auto flex-1 pr-1 custom-scroll">
+                    <p class="text-gray-400 text-center py-10 italic">Carregando lista...</p>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow md:col-span-2">
-                <h2 class="text-green-600 font-bold mb-6">2. Dados da Cobrança</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Cliente Selecionado</label>
-                        <input type="text" id="cliente-nome" class="w-full p-3 bg-gray-100 border rounded text-gray-600 font-medium" disabled placeholder="Selecione na lista ←">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 space-y-6">
+                <h2 class="text-green-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> 2. Dados da Cobrança
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cliente Ativo</label>
+                        <input type="text" id="cliente-nome" class="w-full p-3 bg-gray-50 border rounded-lg text-gray-900 font-bold text-sm" disabled placeholder="Selecione na lista ←">
                         <input type="hidden" id="cliente-id">
                         <input type="hidden" id="cliente-email-real">
                     </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase">Valor (R$)</label>
-                        <input type="text" id="campo-valor" class="w-full p-3 border rounded font-bold text-gray-800" placeholder="Ex: 150.00">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Valor da Venda (R$)</label>
+                        <input type="text" id="campo-valor" class="w-full p-3 border rounded-lg font-black text-gray-800 text-lg focus:ring-2 focus:ring-green-500/20 outline-none" placeholder="Ex: 500.00">
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label class="text-xs font-bold text-gray-500 uppercase">Produto</label>
-                    <select id="select-produto" class="w-full p-3 border rounded bg-white" onchange="aoMudarProduto()">
-                        <option value="">Selecione...</option>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Produto ou Serviço</label>
+                    <select id="select-produto" class="w-full p-3 border rounded-lg bg-white font-medium text-sm outline-none focus:ring-2 focus:ring-green-500/20" onchange="aoMudarProduto()">
+                        <option value="">Selecione um produto...</option>
                     </select>
                 </div>
-                <div class="mb-6">
-                    <label class="text-xs font-bold text-gray-500 uppercase">Pix Copia e Cola (Manual)</label>
-                    <textarea id="pix-manual" rows="3" class="w-full p-3 border rounded font-mono text-xs bg-gray-50" placeholder="Cole o código Pix aqui..."></textarea>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Pix Copia e Cola (Opcional)</label>
+                    <textarea id="pix-manual" rows="3" class="w-full p-3 border rounded-lg font-mono text-[10px] bg-gray-50 outline-none focus:ring-2 focus:ring-green-500/20" placeholder="Cole o código Pix gerado pelo banco aqui..."></textarea>
                 </div>
-                <button onclick="lancarPedido()" id="btn-lancar" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-green-200">+ Lançar Cobrança</button>
+
+                <button onclick="lancarPedido()" id="btn-lancar" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-green-200 uppercase tracking-widest">
+                    Lançar Venda Oficial
+                </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
-                <h2 class="text-blue-600 font-bold">Gerenciar Vendas Lançadas</h2>
-                <button onclick="carregarVendasPendentes()" class="text-xs text-blue-500 hover:underline">Atualizar Lista</button>
+                <h2 class="text-blue-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">
+                    <i data-lucide="shopping-cart" class="w-4 h-4"></i> Gerenciar Vendas Lançadas
+                </h2>
+                <button onclick="carregarVendasPendentes()" class="text-[10px] font-bold text-gray-400 hover:text-blue-600 uppercase tracking-tighter transition-colors">Atualizar Lista</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-100 text-gray-600 uppercase text-[10px] md:text-xs">
+                    <thead class="bg-gray-50 text-gray-400 uppercase text-[10px] font-black">
                         <tr>
                             <th class="p-4">ID</th>
-                            <th class="p-4">Cliente (ID)</th>
+                            <th class="p-4">Cliente</th>
                             <th class="p-4">Produto</th>
                             <th class="p-4">Valor</th>
                             <th class="p-4 text-center">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="tabela-vendas" class="divide-y divide-gray-100 bg-white">
-                        <tr><td colspan="5" class="p-4 text-center text-gray-400">Carregando...</td></tr>
+                    <tbody id="tabela-vendas" class="divide-y divide-gray-100">
+                        <tr><td colspan="5" class="p-10 text-center text-gray-300 italic">Buscando vendas no banco de dados...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <div class="mt-4 mb-10">
-            <div class="bg-white p-6 rounded-xl shadow max-h-[500px] overflow-y-auto border-t-4 border-green-500 w-full">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-h-[500px] overflow-y-auto border-t-4 border-green-500 w-full">
                 <div class="flex justify-between items-center mb-6 sticky top-0 bg-white pb-2 border-b z-10">
-                    <h2 id="titulo-log-cliente" class="text-green-700 font-bold flex items-center gap-2">
-                        <i data-lucide="activity" class="w-5 h-5"></i> Atividades Recentes dos Clientes
+                    <h2 id="titulo-log-cliente" class="text-green-700 font-black uppercase text-xs tracking-widest flex items-center gap-2">
+                        <i data-lucide="activity" class="w-4 h-4"></i> Atividades Recentes (Clientes)
                     </h2>
-                    <button onclick="carregarLogsGlobais()" class="text-xs font-bold text-gray-500 hover:text-green-600 transition bg-gray-100 px-3 py-1.5 rounded-full uppercase tracking-wider">Ver Todos</button>
+                    <button onclick="carregarLogsGlobais()" class="text-[10px] font-bold text-gray-400 hover:text-green-600 uppercase transition-all bg-gray-100 px-3 py-1.5 rounded-full">Ver Histórico Geral</button>
                 </div>
-                <div id="lista-logs-admin" class="relative border-l-2 border-gray-200 ml-4 space-y-6 mt-4 pb-4">
-                    <p class="text-sm text-gray-400 pl-4 italic">Buscando atividades...</p>
+                <div id="lista-logs-admin" class="relative border-l-2 border-gray-100 ml-4 space-y-6 mt-4 pb-4">
+                    <p class="text-sm text-gray-400 pl-4 italic">Buscando passos dos clientes...</p>
                 </div>
             </div>
         </div>
@@ -117,6 +129,7 @@
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey)
         let clienteSelecionadoId = null;
 
+        // --- AUTH ---
         async function verificarLogin() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) { mostrarPainel(session.user); } 
@@ -132,11 +145,12 @@
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-senha').value;
             const { error } = await _supabase.auth.signInWithPassword({ email: email, password: pass });
-            if (error) { document.getElementById('msg-login').innerText = "Erro: " + error.message; } 
+            if (error) { document.getElementById('msg-login').innerText = "Erro: E-mail ou Senha inválidos."; } 
             else { window.location.reload(); }
         }
         async function sair() { await _supabase.auth.signOut(); window.location.reload(); }
 
+        // --- CARREGAMENTOS ---
         async function carregarClientes() {
             const { data } = await _supabase.from('clientes').select('*').order('created_at', { ascending: false });
             const lista = document.getElementById('lista-clientes');
@@ -144,8 +158,8 @@
             if (data) {
                 data.forEach(c => {
                     const div = document.createElement('div');
-                    div.className = "p-3 border rounded cursor-pointer hover:bg-green-50 flex justify-between items-start cliente-item transition";
-                    div.innerHTML = `<div class="flex flex-col gap-1 w-full"><span class="font-bold capitalize text-gray-800">${c.nome} ${c.sobrenome || ''}</span><span class="text-xs text-gray-500 flex items-center gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5 text-blue-500"></i>${c.email || 'N/A'}</span><span class="text-xs text-gray-600 flex items-center gap-1.5 font-medium"><i data-lucide="phone" class="w-3.5 h-3.5 text-green-500"></i>${c.telefone || 'N/A'}</span></div>`;
+                    div.className = "p-4 border rounded-xl cursor-pointer hover:bg-green-50/50 flex justify-between items-start cliente-item transition-all border-gray-100";
+                    div.innerHTML = `<div class="flex flex-col gap-0.5 w-full"><span class="font-bold text-gray-800 text-sm capitalize">${c.nome} ${c.sobrenome || ''}</span><span class="text-[10px] text-gray-400 flex items-center gap-1"><i data-lucide="mail" class="w-3 h-3"></i>${c.email || 'N/A'}</span><span class="text-[10px] text-gray-500 font-bold flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i>${c.telefone || 'N/A'}</span></div>`;
                     div.onclick = () => {
                         document.querySelectorAll('.cliente-item').forEach(x => x.classList.remove('bg-green-100', 'border-green-500', 'ring-1', 'ring-green-500'));
                         div.classList.add('bg-green-100', 'border-green-500', 'ring-1', 'ring-green-500');
@@ -163,50 +177,91 @@
         async function carregarProdutos() {
             const { data } = await _supabase.from('produtos').select('*');
             const sel = document.getElementById('select-produto');
-            if(data) { data.forEach(p => { const opt = document.createElement('option'); opt.value = p.nome; opt.dataset.preco = p.preco; opt.innerText = `${p.nome} - R$ ${p.preco}`; sel.appendChild(opt); }); }
+            if(data) { 
+                data.forEach(p => { 
+                    const opt = document.createElement('option'); 
+                    opt.value = p.nome; 
+                    opt.setAttribute('data-preco', p.preco); // Correção do Preço
+                    opt.innerText = `${p.nome} - R$ ${p.preco}`; 
+                    sel.appendChild(opt); 
+                }); 
+            }
         }
-        function aoMudarProduto() { const sel = document.getElementById('select-produto'); const preco = sel.options[sel.selectedIndex].dataset.preco; if (preco) document.getElementById('campo-valor').value = preco; }
-        function filtrarClientes() { const termo = document.getElementById('busca-cliente').value.toLowerCase(); document.querySelectorAll('.cliente-item').forEach(item => { item.style.display = item.innerText.toLowerCase().includes(termo) ? "flex" : "none"; }); }
 
+        // --- CORREÇÃO DO VALOR NULL ---
+        function aoMudarProduto() {
+            const sel = document.getElementById('select-produto');
+            const opSelecionada = sel.options[sel.selectedIndex];
+            const preco = opSelecionada.getAttribute('data-preco'); // Pega o atributo correto
+            
+            if (preco && preco !== "undefined") {
+                document.getElementById('campo-valor').value = preco;
+            } else {
+                document.getElementById('campo-valor').value = ""; // Limpa se não houver preço
+            }
+        }
+
+        function filtrarClientes() {
+            const termo = document.getElementById('busca-cliente').value.toLowerCase();
+            document.querySelectorAll('.cliente-item').forEach(item => { item.style.display = item.innerText.toLowerCase().includes(termo) ? "flex" : "none"; });
+        }
+
+        // --- LANÇAR PEDIDO ---
         async function lancarPedido() {
             const clienteId = document.getElementById('cliente-id').value;
             const clienteEmail = document.getElementById('cliente-email-real').value;
             const produto = document.getElementById('select-produto').value;
             const valor = document.getElementById('campo-valor').value;
             const pix = document.getElementById('pix-manual').value;
-            if (!clienteId || !valor) { alert("Selecione um cliente e digite o valor."); return; }
-            const { error } = await _supabase.from('vendas').insert({ email_cliente: clienteId, produto, valor, status: 'Pendente', pix_copia_cola: pix });
+            if (!clienteId || !valor) { alert("Atenção: Selecione um cliente e defina um valor."); return; }
+            
+            const { error } = await _supabase.from('vendas').insert({ 
+                email_cliente: clienteId, 
+                produto: produto || "Venda Manual", 
+                valor: valor, 
+                status: 'Pendente', 
+                pix_copia_cola: pix 
+            });
+
             if (!error) {
-                alert("Venda Lançada!");
+                alert("Sucesso! Venda lançada no sistema.");
                 document.getElementById('pix-manual').value = "";
                 carregarVendasPendentes();
                 registrarAtividadeAdmin(clienteId, clienteEmail, `Admin gerou cobrança de R$ ${valor} (${produto})`);
+            } else {
+                alert("Erro ao salvar: " + error.message);
             }
         }
 
+        // --- TABELA DE VENDAS (TRATA O NULL) ---
         async function carregarVendasPendentes() {
             const tb = document.getElementById('tabela-vendas');
             const { data } = await _supabase.from('vendas').select('*').in('status', ['Pendente', 'Pago', 'Aprovado']).order('id', { ascending: false });
 
-            if (!data || data.length === 0) { tb.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">Nenhuma venda.</td></tr>`; return; }
+            if (!data || data.length === 0) { tb.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">Nenhuma venda encontrada no histórico.</td></tr>`; return; }
 
             tb.innerHTML = data.map(v => {
                 const isPago = v.status === 'Pago' || v.status === 'Aprovado';
+                const rowClass = isPago ? 'bg-gray-50 opacity-60' : 'bg-white hover:bg-green-50/20';
+                
+                // Correção do valor para não exibir null
+                const valorLimpo = (v.valor && v.valor !== 'null') ? `R$ ${v.valor}` : `<span class="text-red-300">R$ 0,00</span>`;
+
                 return `
-                    <tr class="${isPago ? 'bg-gray-50 opacity-60' : 'bg-white hover:bg-green-50/30'} border-b border-gray-100">
-                        <td class="p-4 font-mono text-[10px]">#${v.id}</td>
-                        <td class="p-4 text-[10px]">${v.email_cliente ? v.email_cliente.substring(0, 8) + '...' : '---'}</td>
-                        <td class="p-4 text-sm ${isPago ? 'line-through' : 'font-medium'}">${v.produto}</td>
-                        <td class="p-4 font-bold ${isPago ? 'text-gray-400' : 'text-green-600'}">R$ ${v.valor || '0,00'}</td>
-                        <td class="p-4 text-center">
+                    <tr class="${rowClass} border-b border-gray-100 transition-all">
+                        <td class="p-4 font-mono text-[10px] text-gray-400">#${v.id}</td>
+                        <td class="p-4 text-[10px] text-gray-500 font-bold">${v.email_cliente ? v.email_cliente.substring(0, 8) + '...' : '---'}</td>
+                        <td class="p-4 text-xs ${isPago ? 'line-through text-gray-400' : 'font-bold text-gray-700'}">${v.produto}</td>
+                        <td class="p-4 font-black ${isPago ? 'text-gray-400' : 'text-green-600'}">${valorLimpo}</td>
+                        <td class="p-4">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="${isPago ? '' : `aprovarVenda(${v.id}, '${v.email_cliente}')`}" ${isPago ? 'disabled' : ''} class="${isPago ? 'bg-gray-200 text-gray-400' : 'bg-green-100 text-green-700 hover:bg-green-200'} px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 uppercase">
+                                <button onclick="${isPago ? '' : `aprovarVenda(${v.id}, '${v.email_cliente}')`}" ${isPago ? 'disabled' : ''} class="${isPago ? 'bg-gray-100 text-gray-300' : 'bg-green-100 text-green-700 hover:bg-green-200'} px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-1 uppercase transition-all">
                                     <i data-lucide="check-circle" class="w-3 h-3"></i> ${isPago ? 'Pago' : 'Aprovar'}
                                 </button>
-                                <button onclick="${isPago ? '' : `atualizarPix(${v.id}, '${v.email_cliente}')`}" ${isPago ? 'disabled' : ''} class="${isPago ? 'bg-gray-200 text-gray-400' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'} px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 uppercase">
+                                <button onclick="${isPago ? '' : `atualizarPix(${v.id}, '${v.email_cliente}')`}" ${isPago ? 'disabled' : ''} class="${isPago ? 'bg-gray-100 text-gray-300' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'} px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-1 uppercase transition-all">
                                     <i data-lucide="edit-3" class="w-3 h-3"></i> Pix
                                 </button>
-                                <button onclick="deletarVenda(${v.id}, '${v.email_cliente}')" class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white p-2 rounded-lg transition-all">
+                                <button onclick="deletarVenda(${v.id}, '${v.email_cliente}')" class="bg-red-50 text-red-400 hover:bg-red-500 hover:text-white p-2 rounded-lg transition-all">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
@@ -218,25 +273,25 @@
         }
 
         async function deletarVenda(id, idAuth) {
-            if(confirm("EXCLUIR este pedido?")) {
+            if(confirm("Confirmar exclusão definitiva do pedido #" + id + "?")) {
                 const { error } = await _supabase.from('vendas').delete().eq('id', id);
-                if(!error) { carregarVendasPendentes(); registrarAtividadeAdmin(idAuth, "ID: " + idAuth, `Admin deletou o pedido #${id}`); }
+                if(!error) { carregarVendasPendentes(); registrarAtividadeAdmin(idAuth, "Log: " + idAuth, `Admin deletou o pedido #${id}`); }
             }
         }
 
         async function aprovarVenda(id, idAuth) {
-            if(confirm("Marcar pedido #" + id + " como PAGO?")) {
+            if(confirm("Deseja marcar o pedido #" + id + " como PAGO?")) {
                 const { error } = await _supabase.from('vendas').update({ status: 'Pago' }).eq('id', id);
-                if(!error) { carregarVendasPendentes(); registrarAtividadeAdmin(idAuth, "ID: " + idAuth, `Admin aprovou o pedido #${id}`); }
+                if(!error) { carregarVendasPendentes(); registrarAtividadeAdmin(idAuth, "Log: " + idAuth, `Admin aprovou o pedido #${id}`); }
             }
         }
 
         async function atualizarPix(id, idAuth) {
-            const novo = prompt("Novo código Pix:");
+            const novo = prompt("Cole o novo código Pix Copia e Cola:");
             if(novo) {
                 await _supabase.from('vendas').update({ pix_copia_cola: novo }).eq('id', id);
                 carregarVendasPendentes();
-                registrarAtividadeAdmin(idAuth, "ID: " + idAuth, `Admin atualizou o Pix do pedido #${id}`);
+                registrarAtividadeAdmin(idAuth, "Log: " + idAuth, `Admin atualizou o Pix do pedido #${id}`);
             }
         }
 
@@ -250,28 +305,28 @@
 
         async function carregarLogsGlobais() {
             clienteSelecionadoId = null;
-            document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-5 h-5"></i> Atividades Recentes (Clientes)`;
+            document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-4 h-4"></i> Atividades Recentes (Clientes)`;
             const { data, error } = await _supabase.from('logs_atividades').select('*').order('created_at', { ascending: false }).limit(60);
             renderizarLogs(data, error);
         }
 
         async function carregarLogsDoCliente(idAuth, nomeCliente) {
             clienteSelecionadoId = idAuth;
-            document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-5 h-5"></i> Logs de: ${nomeCliente}`;
+            document.getElementById('titulo-log-cliente').innerHTML = `<i data-lucide="activity" class="w-4 h-4"></i> Atividades de: ${nomeCliente}`;
             const { data, error } = await _supabase.from('logs_atividades').select('*').eq('id_cliente', idAuth).order('created_at', { ascending: false });
             renderizarLogs(data, error);
         }
 
         function renderizarLogs(data, error) {
             const container = document.getElementById('lista-logs-admin');
-            if (error || !data) { container.innerHTML = '<p class="text-sm text-gray-400 pl-4">Buscando...</p>'; return; }
+            if (error || !data) { container.innerHTML = '<p class="text-xs text-gray-400 pl-4 italic">Buscando informações...</p>'; return; }
             const filteredData = data.filter(log => log.acao && !log.acao.toLowerCase().includes('admin'));
-            if (filteredData.length === 0) { container.innerHTML = '<p class="text-sm text-gray-400 pl-4 italic">Sem atividades de clientes.</p>'; return; }
+            if (filteredData.length === 0) { container.innerHTML = '<p class="text-[10px] text-gray-300 pl-4 italic">Nenhuma atividade de cliente registrada.</p>'; return; }
             container.innerHTML = filteredData.map(log => `
-                <div class="relative pl-6 fade-in">
-                    <span class="absolute -left-[11px] top-0 bg-white shadow-sm"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-500 fill-white rounded-full"></i></span>
-                    <p class="font-bold text-sm text-gray-800">${log.acao}</p>
-                    <p class="text-xs text-gray-500 mt-1">${log.email_cliente || 'Desconhecido'} • ${new Date(log.created_at).toLocaleString('pt-BR')}</p>
+                <div class="relative pl-6 fade-in mb-4">
+                    <span class="absolute -left-[11px] top-0 bg-white"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-500 fill-white rounded-full shadow-sm"></i></span>
+                    <p class="font-bold text-xs text-gray-800">${log.acao}</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5">${log.email_cliente || 'Visitante'} • ${new Date(log.created_at).toLocaleString('pt-BR')}</p>
                 </div>
             `).join('');
             lucide.createIcons();
