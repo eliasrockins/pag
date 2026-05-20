@@ -7,7 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>body { background-color: #f3f4f6; font-family: sans-serif; }</style>
+    <style>
+        body { background-color: #f3f4f6; font-family: sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -65,7 +69,12 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Produto ou Serviço</label>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Produto ou Serviço</label>
+                        <button onclick="abrirModalProduto()" class="text-[10px] font-bold text-blue-500 hover:text-blue-700 flex items-center gap-1 transition-colors bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded">
+                            <i data-lucide="plus" class="w-3 h-3"></i> Adicionar Novo
+                        </button>
+                    </div>
                     <select id="select-produto" class="w-full p-3 border rounded-lg bg-white font-medium text-sm outline-none focus:ring-2 focus:ring-green-500/20" onchange="aoMudarProduto()">
                         <option value="">Selecione um produto...</option>
                     </select>
@@ -122,6 +131,34 @@
         </div>
     </div>
 
+    <div id="modal-produto" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center fade-in px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+            <button onclick="fecharModalProduto()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors bg-gray-50 hover:bg-red-50 p-1.5 rounded-full">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <h3 class="text-lg font-black text-gray-800 mb-6 uppercase tracking-tighter flex items-center gap-2">
+                <div class="p-2 bg-blue-50 text-blue-500 rounded-lg"><i data-lucide="package-plus" class="w-5 h-5"></i></div>
+                Cadastrar Produto
+            </h3>
+            
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nome do Produto</label>
+                    <input type="text" id="novo-produto-nome" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50" placeholder="Ex: PlayStation 5">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Preço Padrão (R$)</label>
+                    <input type="number" step="0.01" id="novo-produto-preco" class="w-full p-3 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50" placeholder="Ex: 3500.00">
+                </div>
+                
+                <button onclick="salvarNovoProduto()" id="btn-salvar-produto" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-blue-200 uppercase tracking-widest text-xs mt-4">
+                    Salvar no Banco
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
         const supabaseUrl = 'https://eedegpggzooimuvytmyt.supabase.co'
@@ -150,7 +187,7 @@
         }
         async function sair() { await _supabase.auth.signOut(); window.location.reload(); }
 
-        // --- CARREGAMENTOS ---
+        // --- CARREGAMENTOS CLIENTES ---
         async function carregarClientes() {
             const { data } = await _supabase.from('clientes').select('*').order('created_at', { ascending: false });
             const lista = document.getElementById('lista-clientes');
@@ -173,37 +210,84 @@
                 lucide.createIcons();
             }
         }
+        function filtrarClientes() {
+            const termo = document.getElementById('busca-cliente').value.toLowerCase();
+            document.querySelectorAll('.cliente-item').forEach(item => { item.style.display = item.innerText.toLowerCase().includes(termo) ? "flex" : "none"; });
+        }
 
+        // --- SISTEMA DE PRODUTOS ---
         async function carregarProdutos() {
             const { data } = await _supabase.from('produtos').select('*');
             const sel = document.getElementById('select-produto');
+            sel.innerHTML = '<option value="">Selecione um produto...</option>'; // Limpa e adiciona o placeholder
             if(data) { 
                 data.forEach(p => { 
                     const opt = document.createElement('option'); 
                     opt.value = p.nome; 
-                    opt.setAttribute('data-preco', p.preco); // Correção do Preço
+                    opt.setAttribute('data-preco', p.preco);
                     opt.innerText = `${p.nome} - R$ ${p.preco}`; 
                     sel.appendChild(opt); 
                 }); 
             }
         }
 
-        // --- CORREÇÃO DO VALOR NULL ---
         function aoMudarProduto() {
             const sel = document.getElementById('select-produto');
             const opSelecionada = sel.options[sel.selectedIndex];
-            const preco = opSelecionada.getAttribute('data-preco'); // Pega o atributo correto
+            const preco = opSelecionada.getAttribute('data-preco'); 
             
             if (preco && preco !== "undefined") {
                 document.getElementById('campo-valor').value = preco;
             } else {
-                document.getElementById('campo-valor').value = ""; // Limpa se não houver preço
+                document.getElementById('campo-valor').value = ""; 
             }
         }
 
-        function filtrarClientes() {
-            const termo = document.getElementById('busca-cliente').value.toLowerCase();
-            document.querySelectorAll('.cliente-item').forEach(item => { item.style.display = item.innerText.toLowerCase().includes(termo) ? "flex" : "none"; });
+        function abrirModalProduto() {
+            document.getElementById('modal-produto').classList.remove('hidden');
+            document.getElementById('novo-produto-nome').focus();
+        }
+
+        function fecharModalProduto() {
+            document.getElementById('modal-produto').classList.add('hidden');
+            document.getElementById('novo-produto-nome').value = '';
+            document.getElementById('novo-produto-preco').value = '';
+        }
+
+        async function salvarNovoProduto() {
+            const nome = document.getElementById('novo-produto-nome').value.trim();
+            const precoStr = document.getElementById('novo-produto-preco').value.trim();
+            const btn = document.getElementById('btn-salvar-produto');
+
+            if (!nome || !precoStr) {
+                alert("Preencha o nome e o preço do produto.");
+                return;
+            }
+
+            // Converter vírgula para ponto e forçar número (caso o navegador seja muito permissivo)
+            const precoNum = parseFloat(precoStr.replace(',', '.'));
+
+            btn.innerText = "SALVANDO...";
+            btn.disabled = true;
+
+            // Insere na tabela produtos no Supabase
+            const { error } = await _supabase.from('produtos').insert([{ nome: nome, preco: precoNum }]);
+
+            if (error) {
+                alert("Erro ao salvar: " + error.message);
+            } else {
+                fecharModalProduto();
+                carregarProdutos(); // Atualiza a lista na hora
+                
+                // Mostra um aviso rápido e discreto
+                const msg = document.getElementById('msg-status');
+                msg.innerText = "Produto adicionado à lista!";
+                msg.classList.add('text-green-500');
+                setTimeout(() => msg.innerText = "", 3000);
+            }
+
+            btn.innerText = "Salvar no Banco";
+            btn.disabled = false;
         }
 
         // --- LANÇAR PEDIDO ---
@@ -233,7 +317,7 @@
             }
         }
 
-        // --- TABELA DE VENDAS (TRATA O NULL) ---
+        // --- TABELA DE VENDAS ---
         async function carregarVendasPendentes() {
             const tb = document.getElementById('tabela-vendas');
             const { data } = await _supabase.from('vendas').select('*').in('status', ['Pendente', 'Pago', 'Aprovado']).order('id', { ascending: false });
@@ -243,8 +327,6 @@
             tb.innerHTML = data.map(v => {
                 const isPago = v.status === 'Pago' || v.status === 'Aprovado';
                 const rowClass = isPago ? 'bg-gray-50 opacity-60' : 'bg-white hover:bg-green-50/20';
-                
-                // Correção do valor para não exibir null
                 const valorLimpo = (v.valor && v.valor !== 'null') ? `R$ ${v.valor}` : `<span class="text-red-300">R$ 0,00</span>`;
 
                 return `
@@ -346,3 +428,5 @@
     </script>
 </body>
 </html>
+
+```
