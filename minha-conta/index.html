@@ -152,7 +152,6 @@
             document.getElementById('texto-toggle').innerText = isLoginMode ? "Não tem uma conta? Criar agora" : "Já tem uma conta? Fazer login";
         }
 
-        // --- SISTEMA DE MÁSCARAS ---
         document.getElementById('cpf').addEventListener('input', e => {
             let v = e.target.value.replace(/\D/g, '');
             v = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
@@ -181,7 +180,6 @@
             }
         });
 
-        // --- LÓGICA DE AUTENTICAÇÃO ---
         async function handleAuth() {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -198,11 +196,9 @@
 
             try {
                 if (isLoginMode) {
-                    // --- LOGIN ---
                     const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     
-                    // Log de atividade
                     await _supabase.from('logs_atividades').insert([{ 
                         id_cliente: data.user.id, 
                         email_cliente: email, 
@@ -212,13 +208,11 @@
                     window.location.href = "/dashboard";
 
                 } else {
-                    // --- CADASTRO ---
                     const { data: authData, error: authError } = await _supabase.auth.signUp({ email, password });
                     if (authError) throw authError;
 
                     if (!authData || !authData.user) throw new Error("E-mail já cadastrado ou limite atingido.");
 
-                    // Salva dados extras na tabela clientes (incluindo o email para o Admin)
                     const { error: dbError } = await _supabase.from('clientes').insert({
                         id_auth: authData.user.id, 
                         email: email,
@@ -236,23 +230,26 @@
 
                     if (dbError) throw dbError;
 
-                    // Log de atividade
                     await _supabase.from('logs_atividades').insert([{ 
                         id_cliente: authData.user.id, 
                         email_cliente: email, 
                         acao: "Cliente criou uma nova conta" 
                     }]);
 
-                    // Notificação via E-mail
+                    // AJUSTE: Cabeçalho 'Accept' recuperado para o FormSubmit aceitar o disparo via AJAX
                     fetch("https://formsubmit.co/ajax/lucasalvesfariaesilva@gmail.com", {
                         method: "POST",
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
                         body: JSON.stringify({
-                            _subject: "🎉 NOVO CLIENTE CADASTRADO!",
-                            Nome: document.getElementById('firstName').value,
+                            _subject: "🎉 NOVO CLIENTE CADASTRADO NO SITE!",
+                            Nome: document.getElementById('firstName').value + " " + document.getElementById('lastName').value,
                             Email: email,
                             CPF: document.getElementById('cpf').value,
-                            Telefone: document.getElementById('telefone').value
+                            Telefone: document.getElementById('telefone').value,
+                            Data: new Date().toLocaleString('pt-BR')
                         })
                     }).catch(() => {});
                     
