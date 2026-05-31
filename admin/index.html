@@ -15,6 +15,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
+    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="flex flex-col items-center justify-center h-screen px-4">
         <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
             <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Acesso Restrito 🔒</h2>
@@ -29,8 +30,10 @@
         </div>
     </div>
 
+    <!-- PAINEL PRINCIPAL -->
     <div id="painel-principal" class="hidden p-6 max-w-7xl mx-auto space-y-8">
         
+        <!-- CABEÇALHO -->
         <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <h1 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Gerenciar Vendas</h1>
             <div class="flex items-center gap-4">
@@ -40,6 +43,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- 1. SELECIONAR CLIENTE -->
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 md:col-span-1 h-[520px] flex flex-col">
                 <h2 class="text-green-600 font-black mb-4 uppercase text-xs tracking-widest flex items-center gap-2">
                     <i data-lucide="user-plus" class="w-4 h-4"></i> 1. Selecionar Cliente
@@ -50,6 +54,7 @@
                 </div>
             </div>
 
+            <!-- 2. LANÇAR COBRANÇA -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 space-y-6">
                 <h2 class="text-green-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">
                     <i data-lucide="file-text" class="w-4 h-4"></i> 2. Dados da Cobrança
@@ -69,6 +74,7 @@
                 </div>
 
                 <div class="space-y-1">
+                    <!-- CABEÇALHO DO PRODUTO COM BOTÃO NOVO -->
                     <div class="flex justify-between items-center mb-1">
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Produto ou Serviço</label>
                         <button onclick="abrirModalProduto()" class="text-[10px] font-bold text-blue-500 hover:text-blue-700 flex items-center gap-1 transition-colors bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded">
@@ -91,6 +97,7 @@
             </div>
         </div>
 
+        <!-- TABELA DE VENDAS LANÇADAS -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
                 <h2 class="text-blue-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">
@@ -116,6 +123,7 @@
             </div>
         </div>
 
+        <!-- HISTÓRICO DE LOGS -->
         <div class="mt-4 mb-10">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-h-[500px] overflow-y-auto border-t-4 border-green-500 w-full">
                 <div class="flex justify-between items-center mb-6 sticky top-0 bg-white pb-2 border-b z-10">
@@ -131,6 +139,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE NOVO PRODUTO -->
     <div id="modal-produto" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center fade-in px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
             <button onclick="fecharModalProduto()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors bg-gray-50 hover:bg-red-50 p-1.5 rounded-full">
@@ -215,7 +224,7 @@
             document.querySelectorAll('.cliente-item').forEach(item => { item.style.display = item.innerText.toLowerCase().includes(termo) ? "flex" : "none"; });
         }
 
-        // --- SISTEMA DE PRODUTOS E NOTIFICAÇÃO ---
+        // --- SISTEMA DE PRODUTOS ---
         async function carregarProdutos() {
             const { data } = await _supabase.from('produtos').select('*');
             const sel = document.getElementById('select-produto');
@@ -225,7 +234,7 @@
                     const opt = document.createElement('option'); 
                     opt.value = p.nome; 
                     opt.setAttribute('data-preco', p.preco);
-                    opt.innerText = `${p.nome} - R$ ${p.preco}`; 
+                    opt.innerText = `${p.nome} - R$ ${p.preco || '0.00'}`; 
                     sel.appendChild(opt); 
                 }); 
             }
@@ -236,7 +245,7 @@
             const opSelecionada = sel.options[sel.selectedIndex];
             const preco = opSelecionada.getAttribute('data-preco'); 
             
-            if (preco && preco !== "undefined") {
+            if (preco && preco !== "undefined" && preco !== "null") {
                 document.getElementById('campo-valor').value = preco;
             } else {
                 document.getElementById('campo-valor').value = ""; 
@@ -275,22 +284,6 @@
             } else {
                 fecharModalProduto();
                 carregarProdutos(); // Atualiza a lista na hora
-                
-                // DISPARO DE E-MAIL AVISANDO DO NOVO PRODUTO
-                fetch("https://formsubmit.co/ajax/lucasalvesfariaesilva@gmail.com", {
-                    method: "POST",
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        _subject: "🛍️ NOVO PRODUTO ADICIONADO NO SISTEMA!",
-                        "Nome do Produto": nome,
-                        "Preço Cadastrado": "R$ " + precoNum.toFixed(2).replace('.', ','),
-                        "Data do Cadastro": new Date().toLocaleString('pt-BR')
-                    })
-                }).catch(() => {});
-                
                 alert("Produto cadastrado com sucesso!");
             }
 
@@ -298,15 +291,21 @@
             btn.disabled = false;
         }
 
-        // --- LANÇAR PEDIDO ---
+        // --- LANÇAR PEDIDO & NOTIFICAÇÃO ---
         async function lancarPedido() {
             const clienteId = document.getElementById('cliente-id').value;
+            const clienteNome = document.getElementById('cliente-nome').value;
             const clienteEmail = document.getElementById('cliente-email-real').value;
             const produto = document.getElementById('select-produto').value;
             const valor = document.getElementById('campo-valor').value;
             const pix = document.getElementById('pix-manual').value;
+            const btn = document.getElementById('btn-lancar');
+            
             if (!clienteId || !valor) { alert("Atenção: Selecione um cliente e defina um valor."); return; }
             
+            btn.innerText = "LANÇANDO...";
+            btn.disabled = true;
+
             const { error } = await _supabase.from('vendas').insert({ 
                 email_cliente: clienteId, 
                 produto: produto || "Venda Manual", 
@@ -320,9 +319,30 @@
                 document.getElementById('pix-manual').value = "";
                 carregarVendasPendentes();
                 registrarAtividadeAdmin(clienteId, clienteEmail, `Admin gerou cobrança de R$ ${valor} (${produto})`);
+                
+                // DISPARO DE E-MAIL AVISANDO DA NOVA VENDA
+                fetch("https://formsubmit.co/ajax/lucasalvesfariaesilva@gmail.com", {
+                    method: "POST",
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _subject: "💰 NOVA VENDA LANÇADA NO SISTEMA!",
+                        "Cliente": clienteNome,
+                        "Email do Cliente": clienteEmail || "Não informado",
+                        "Produto": produto || "Venda Manual",
+                        "Valor da Venda": "R$ " + valor,
+                        "Data": new Date().toLocaleString('pt-BR')
+                    })
+                }).catch(() => {});
+
             } else {
                 alert("Erro ao salvar: " + error.message);
             }
+            
+            btn.innerText = "LANÇAR VENDA OFICIAL";
+            btn.disabled = false;
         }
 
         // --- TABELA DE VENDAS ---
