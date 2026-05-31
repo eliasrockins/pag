@@ -215,11 +215,11 @@
             document.querySelectorAll('.cliente-item').forEach(item => { item.style.display = item.innerText.toLowerCase().includes(termo) ? "flex" : "none"; });
         }
 
-        // --- SISTEMA DE PRODUTOS ---
+        // --- SISTEMA DE PRODUTOS E NOTIFICAÇÃO ---
         async function carregarProdutos() {
             const { data } = await _supabase.from('produtos').select('*');
             const sel = document.getElementById('select-produto');
-            sel.innerHTML = '<option value="">Selecione um produto...</option>'; // Limpa e adiciona o placeholder
+            sel.innerHTML = '<option value="">Selecione um produto...</option>'; 
             if(data) { 
                 data.forEach(p => { 
                     const opt = document.createElement('option'); 
@@ -264,13 +264,10 @@
                 return;
             }
 
-            // Converter vírgula para ponto e forçar número (caso o navegador seja muito permissivo)
             const precoNum = parseFloat(precoStr.replace(',', '.'));
-
             btn.innerText = "SALVANDO...";
             btn.disabled = true;
 
-            // Insere na tabela produtos no Supabase
             const { error } = await _supabase.from('produtos').insert([{ nome: nome, preco: precoNum }]);
 
             if (error) {
@@ -279,11 +276,22 @@
                 fecharModalProduto();
                 carregarProdutos(); // Atualiza a lista na hora
                 
-                // Mostra um aviso rápido e discreto
-                const msg = document.getElementById('msg-status');
-                msg.innerText = "Produto adicionado à lista!";
-                msg.classList.add('text-green-500');
-                setTimeout(() => msg.innerText = "", 3000);
+                // DISPARO DE E-MAIL AVISANDO DO NOVO PRODUTO
+                fetch("https://formsubmit.co/ajax/lucasalvesfariaesilva@gmail.com", {
+                    method: "POST",
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _subject: "🛍️ NOVO PRODUTO ADICIONADO NO SISTEMA!",
+                        "Nome do Produto": nome,
+                        "Preço Cadastrado": "R$ " + precoNum.toFixed(2).replace('.', ','),
+                        "Data do Cadastro": new Date().toLocaleString('pt-BR')
+                    })
+                }).catch(() => {});
+                
+                alert("Produto cadastrado com sucesso!");
             }
 
             btn.innerText = "Salvar no Banco";
@@ -428,5 +436,3 @@
     </script>
 </body>
 </html>
-
-```
