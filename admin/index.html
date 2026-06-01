@@ -310,7 +310,7 @@
                 carregarVendasPendentes();
                 registrarAtividadeAdmin(clienteId, clienteEmail, `Admin gerou cobrança de R$ ${valor} (${produto})`);
                 
-                // DISPARO DE E-MAIL COM DIAGNÓSTICO VISUAL
+                // DISPARO DE E-MAIL COM DIAGNÓSTICO VISUAL ATUALIZADO
                 try {
                     const respostaEmail = await fetch("https://formsubmit.co/ajax/lucasalvesfariaesilva@gmail.com", {
                         method: "POST",
@@ -336,7 +336,9 @@
                         alert("Venda salva, MAS o e-mail foi bloqueado pelo FormSubmit.\nMotivo: " + (dadosServidor.message || "Necessário ativar o e-mail na sua caixa de entrada."));
                     }
                 } catch (e) {
-                    alert("Venda salva, mas a conexão com o FormSubmit falhou.");
+                    // MUDANÇA: Captura e exibe o erro exato que fez falhar
+                    alert("Falha na conexão com o e-mail. Motivo: " + e.message);
+                    console.error("Erro detalhado do FormSubmit:", e);
                 }
 
             } else {
