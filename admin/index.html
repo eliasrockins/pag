@@ -15,6 +15,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
+    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="flex flex-col items-center justify-center h-screen px-4">
         <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
             <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Acesso Restrito 🔒</h2>
@@ -29,8 +30,10 @@
         </div>
     </div>
 
+    <!-- PAINEL PRINCIPAL -->
     <div id="painel-principal" class="hidden p-6 max-w-7xl mx-auto space-y-8">
         
+        <!-- CABEÇALHO -->
         <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <h1 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Gerenciar Vendas</h1>
             <div class="flex items-center gap-4">
@@ -40,6 +43,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- 1. SELECIONAR CLIENTE -->
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 md:col-span-1 h-[520px] flex flex-col">
                 <h2 class="text-green-600 font-black mb-4 uppercase text-xs tracking-widest flex items-center gap-2">
                     <i data-lucide="user-plus" class="w-4 h-4"></i> 1. Selecionar Cliente
@@ -50,6 +54,7 @@
                 </div>
             </div>
 
+            <!-- 2. LANÇAR COBRANÇA -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 space-y-6">
                 <h2 class="text-green-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">
                     <i data-lucide="file-text" class="w-4 h-4"></i> 2. Dados da Cobrança
@@ -131,6 +136,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE NOVO PRODUTO -->
     <div id="modal-produto" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center fade-in px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
             <button onclick="fecharModalProduto()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors bg-gray-50 hover:bg-red-50 p-1.5 rounded-full">
@@ -331,12 +337,11 @@
                     const dadosServidor = await respostaEmail.json();
 
                     if (dadosServidor.success === "true" || dadosServidor.success === true) {
-                        alert("Sucesso! Venda lançada e e-mail de notificação enviado.");
+                        alert("Sucesso! Venda lançada");
                     } else {
                         alert("Venda salva, MAS o e-mail foi bloqueado pelo FormSubmit.\nMotivo: " + (dadosServidor.message || "Necessário ativar o e-mail na sua caixa de entrada."));
                     }
                 } catch (e) {
-                    // MUDANÇA: Captura e exibe o erro exato que fez falhar
                     alert("Falha na conexão com o e-mail. Motivo: " + e.message);
                     console.error("Erro detalhado do FormSubmit:", e);
                 }
